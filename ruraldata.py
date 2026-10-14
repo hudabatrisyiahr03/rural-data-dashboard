@@ -17,9 +17,12 @@ def login_screen():
     password = st.text_input("Kata Laluan", type="password")
     
     if st.button("Log Masuk", type="primary", use_container_width=True):
-        if email and password: 
+        # Check against Streamlit Secrets
+        if email == st.secrets["credentials"]["admin_email"] and password == st.secrets["credentials"]["admin_password"]:
             st.session_state['logged_in'] = True
             st.rerun()
+        else:
+            st.error("Emel atau Kata Laluan tidak sah. Sila cuba lagi.")
 
 # 4. MAIN APP ROUTING & LAYOUT
 if not st.session_state['logged_in']:
