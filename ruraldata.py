@@ -140,7 +140,10 @@ else:
 
         # 2. Main Data Table for the Interactive Chart (Pulled Live from Google Sheets)
         conn = st.connection("gsheets", type=GSheetsConnection)
-        df_institusi = conn.read(worksheet="Pendidikan", usecols=[0, 1, 2])
+        
+        # Add the URL so Streamlit knows exactly where to look
+        sheet_url = "https://docs.google.com/spreadsheets/d/15_qeN_tYUkPaV480_F7ENjTYFJ6vKeGcIDNKb8XEcGM/edit"
+        df_institusi = conn.read(spreadsheet=sheet_url, worksheet="Pendidikan", usecols=[0, 1, 2])
         
         # 3. Interactive Chart
         st.subheader("Perbandingan Enrolmen 2026 vs Fasiliti Akademik")
