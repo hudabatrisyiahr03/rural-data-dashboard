@@ -123,17 +123,18 @@ else:
     elif page == "Sektor Pendidikan":
         st.write("**Ringkasan Maklumat Pelajar di bawah Sektor Pendidikan MARA (IPMa) - Setakat 31 Julai 2026**")
         
-        # 1. High-Level KPIs (Pulled live from the 'KPI_Pendidikan' tab)
-        df_kpi = conn.read(spreadsheet=sheet_url, worksheet="KPI_Pendidikan", ttl=0)
+        # --- 1. SETUP SPREADSHEET CONNECTION FIRST ---
+        conn = st.connection("gsheets", type=GSheetsConnection)
+        sheet_url = "https://docs.google.com/spreadsheets/d/15_qeN_tYUkPaV480_F7ENjTYFJ6vKeGcIDNKb8XEcGM/edit"
+
+        # --- 2. HIGH-LEVEL KPIs ---
+        st.subheader("Prestasi Keseluruhan (IPMa & Tajaan)")
         
-        # Convert the table into a simple dictionary so we can call the numbers easily
+        df_kpi = conn.read(spreadsheet=sheet_url, worksheet="KPI_Pendidikan", ttl=0)
         kpi_data = df_kpi.set_index("Metrik")["Nilai"].to_dict()
 
-        st.subheader("Prestasi Keseluruhan (IPMa & Tajaan)")
         col1, col2, col3, col4 = st.columns(4)
-        
         with col1:
-            # We use {:,} to automatically add the commas (e.g. 165828 -> 165,828)
             st.metric(label="Enrolmen IPMa 2026", value=f"{int(kpi_data['Enrolmen IPMa 2026']):,}")
         with col2:
             st.metric(label="Kapasiti Fasiliti Akademik", value=f"{int(kpi_data['Kapasiti Fasiliti Akademik']):,}")
@@ -141,20 +142,18 @@ else:
             st.metric(label="Pelajar Tajaan Semasa (BPP)", value=f"{int(kpi_data['Pelajar Tajaan Semasa (BPP)']):,}")
         with col4:
             st.metric(label="Jumlah Keseluruhan Pelajar", value=f"{int(kpi_data['Jumlah Keseluruhan Pelajar']):,}")
+            
+        st.divider()
 
-        # 2. Main Data Table for the Interactive Chart (Pulled Live from Google Sheets)
-        conn = st.connection("gsheets", type=GSheetsConnection)
-        
-        # Add the URL so Streamlit knows exactly where to look
-        sheet_url = "https://docs.google.com/spreadsheets/d/15_qeN_tYUkPaV480_F7ENjTYFJ6vKeGcIDNKb8XEcGM/edit"
-        df_institusi = conn.read(spreadsheet=sheet_url, worksheet="Pendidikan", usecols=[0, 1, 2])
-        
-        # 3. Interactive Chart
+        # --- 3. INTERACTIVE CHART ---
         st.subheader("Perbandingan Enrolmen 2026 vs Fasiliti Akademik")
+        
+        df_institusi = conn.read(spreadsheet=sheet_url, worksheet="Pendidikan", usecols=[0, 1, 2], ttl=0)
         df_chart = df_institusi.set_index("Institusi")
+        
         st.bar_chart(df_chart[["Enrolmen 2026", "Fasiliti Akademik"]], color=["#FF4B4B", "#1E88E5"])
 
-        # 4. Detailed Expanders
+        # --- 4. DETAILED EXPANDERS ---
         st.subheader("Pecahan Terperinci Mengikut Bahagian")
         
         with st.expander("Pendidikan Menengah (BPM)"):
