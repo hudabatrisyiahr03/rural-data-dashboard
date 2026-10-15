@@ -17,10 +17,10 @@ def login_screen():
     password = st.text_input("Kata Laluan", type="password")
     
     if st.button("Log Masuk", type="primary", use_container_width=True):
-        # Secure multiple-user validation
         if "staff_passwords" in st.secrets:
             if email in st.secrets["staff_passwords"] and st.secrets["staff_passwords"][email] == password:
                 st.session_state['logged_in'] = True
+                st.session_state['current_user'] = email  # <--- ADD THIS LINE
                 st.rerun()
             else:
                 st.error("Emel atau Kata Laluan tidak sah. Sila cuba lagi.")
@@ -42,6 +42,7 @@ else:
         "Sektor Pendidikan",
         "Sektor Pelaburan",
         "Ringkasan Keseluruhan"
+        "Profil Pengguna"
     ]
     
     page = st.sidebar.radio("Pilih Sektor:", menu_options)
@@ -142,3 +143,28 @@ else:
     elif page == "Ringkasan Keseluruhan":
         with st.expander("Ringkasan Keseluruhan Penerima Kemudahan MARA Kumulatif", expanded=True):
             st.info("Ruangan untuk jadual dan carta kumulatif keseluruhan.")
+
+    elif page == "Profil Pengguna":
+        st.subheader("Maklumat Akaun")
+        
+        # Retrieve the email saved during login
+        current_email = st.session_state.get('current_user', 'Tiada Data')
+        
+        # Mock database linking emails to profile information
+        user_profiles = {
+            "pengarah@mara.gov.my": {"nama": "Pengarah MARA", "jawatan": "Pengarah Eksekutif", "jabatan": "Pengurusan Tertinggi"},
+            "pegawai@mara.gov.my": {"nama": "Pegawai Data", "jawatan": "Pegawai Analisis", "jabatan": "Sektor Keusahawanan"},
+            "huda@ruraldata.com": {"nama": "Nur Huda Batrisyia", "jawatan": "Pembangun Sistem / Admin", "jabatan": "Jabatan IT"}
+        }
+        
+        # Display the profile card
+        if current_email in user_profiles:
+            profile = user_profiles[current_email]
+            st.success("Profil berjaya dimuat turun.")
+            st.write(f"**Nama:** {profile['nama']}")
+            st.write(f"**Emel:** {current_email}")
+            st.write(f"**Jawatan:** {profile['jawatan']}")
+            st.write(f"**Jabatan:** {profile['jabatan']}")
+        else:
+            st.write(f"**Emel:** {current_email}")
+            st.write("Maklumat profil tambahan tidak dijumpai.")
