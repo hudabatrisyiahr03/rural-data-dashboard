@@ -156,34 +156,34 @@ else:
         # --- 4. DETAILED EXPANDERS ---
         st.subheader("Pecahan Terperinci Mengikut Bahagian")
         
+        # Filter the data we already downloaded into specific categories
+        df_bpm = df_institusi[df_institusi['Institusi'] == 'MRSM']
+        df_tvet = df_institusi[df_institusi['Institusi'].isin(["GIATMARA", "TVETMARA", "GMI", "UniKL"])]
+        df_bpt = df_institusi[df_institusi['Institusi'].isin(["Kolej MARA", "KPM", "KPTM", "UPTM"])]
+        
+        # Read the new sponsorship tab
+        df_bpp = conn.read(spreadsheet=sheet_url, worksheet="Tajaan_BPP", ttl=0)
+
         with st.expander("Pendidikan Menengah (BPM)"):
             st.write("**Maktab Rendah Sains MARA (MRSM)**")
-            st.write("- Kapasiti Akademik: 39,750 | Enrolmen 2026: 34,544")
-            st.write("- Pelajar Baharu: 9,843 | Pelajar Tamat 2026: 0")
+            if not df_bpm.empty:
+                kap_mrsm = int(df_bpm.iloc[0]['Fasiliti Akademik'])
+                enrol_mrsm = int(df_bpm.iloc[0]['Enrolmen 2026'])
+                st.write(f"- Kapasiti Akademik: {kap_mrsm:,} | Enrolmen 2026: {enrol_mrsm:,}")
+            st.write("- Pelajar Baharu: 9,843 | Pelajar Tamat 2026: 0") # Can be moved to sheets later if needed
             
         with st.expander("Kemahiran dan Teknikal (TVET)"):
-            st.write("**Jumlah Keseluruhan BKT:** Kapasiti Akademik 81,059 | Enrolmen 89,958")
-            st.table(pd.DataFrame({
-                "Pusat": ["GIATMARA", "TVETMARA", "GMI", "UniKL"],
-                "Kapasiti Akademik": [10699, 21258, 5000, 25000],
-                "Enrolmen 2026": [15217, 17854, 2779, 34935]
-            }))
+            st.write(f"**Jumlah Keseluruhan BKT:** Kapasiti Akademik {df_tvet['Fasiliti Akademik'].sum():,} | Enrolmen {df_tvet['Enrolmen 2026'].sum():,}")
+            st.dataframe(df_tvet, hide_index=True, use_container_width=True)
             
         with st.expander("Pendidikan Tinggi (BPT)"):
-            st.write("**Jumlah Keseluruhan BPT:** Kapasiti Akademik 39,061 | Enrolmen 41,326")
-            st.table(pd.DataFrame({
-                "Pusat": ["Kolej MARA (KM)", "Kolej Profesional MARA (KPM)", "Kolej Poly-Tech MARA (KPTM)", "UPTM"],
-                "Kapasiti Akademik": [3755, 6606, 22900, 5800],
-                "Enrolmen 2026": [1559, 5718, 25360, 8689]
-            }))
+            st.write(f"**Jumlah Keseluruhan BPT:** Kapasiti Akademik {df_bpt['Fasiliti Akademik'].sum():,} | Enrolmen {df_bpt['Enrolmen 2026'].sum():,}")
+            st.dataframe(df_bpt, hide_index=True, use_container_width=True)
             
         with st.expander("Penganjuran Pelajaran (BPP)"):
             st.write("**Pecahan Pelajar Tajaan Semasa**")
-            st.table(pd.DataFrame({
-                "Kategori": ["IPMa", "Dalam Negara (Bukan IPMa)", "Luar Negara"],
-                "Tajaan Baharu": [7497, 237, 640],
-                "Pelajar Semasa": [48263, 24259, 3545]
-            }))
+            st.dataframe(df_bpp, hide_index=True, use_container_width=True)
+            
     elif page == "Sektor Pelaburan":
         with st.expander("Ringkasan Syarikat MARA", expanded=True):
             st.info("Ruangan profil syarikat-syarikat MARA.")
