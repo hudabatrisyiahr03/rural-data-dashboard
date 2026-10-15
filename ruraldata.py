@@ -224,21 +224,19 @@ else:
         # Retrieve the email saved during login
         current_email = st.session_state.get('current_user', 'Tiada Data')
         
-        # Mock database linking emails to profile information
-        user_profiles = {
-            "pengarah@mara.gov.my": {"nama": "Pengarah MARA", "jawatan": "Pengarah Eksekutif", "jabatan": "Pengurusan Tertinggi"},
-            "pegawai@mara.gov.my": {"nama": "Pegawai Data", "jawatan": "Pegawai Analisis", "jabatan": "Sektor Keusahawanan"},
-            "huda@ruraldata.com": {"nama": "Nur Huda Batrisyia", "jawatan": "Pembangun Sistem / Admin", "jabatan": "Jabatan IT"}
-        }
+        # Pull the staff database directly from Google Sheets
+        df_profil = conn.read(spreadsheet=sheet_url, worksheet="Profil_Staf", ttl=0)
+        
+        # Search the sheet for the row matching the logged-in email
+        user_row = df_profil[df_profil['Emel'] == current_email]
         
         # Display the profile card
-        if current_email in user_profiles:
-            profile = user_profiles[current_email]
-            st.success("Profil berjaya dimuat turun.")
-            st.write(f"**Nama:** {profile['nama']}")
+        if not user_row.empty:
+            st.success("Profil berjaya dimuat turun dari pangkalan data.")
+            st.write(f"**Nama:** {user_row.iloc[0]['Nama']}")
             st.write(f"**Emel:** {current_email}")
-            st.write(f"**Jawatan:** {profile['jawatan']}")
-            st.write(f"**Jabatan:** {profile['jabatan']}")
+            st.write(f"**Jawatan:** {user_row.iloc[0]['Jawatan']}")
+            st.write(f"**Jabatan:** {user_row.iloc[0]['Jabatan']}")
         else:
             st.write(f"**Emel:** {current_email}")
-            st.write("Maklumat profil tambahan tidak dijumpai.")
+            st.warning("Maklumat profil tambahan tidak dijumpai dalam pangkalan data.")
