@@ -120,30 +120,67 @@ else:
             st.dataframe(df, use_container_width=True)
 
     elif page == "Sektor Pendidikan":
-        st.write("**Ringkasan Maklumat Pelajar di bawah Sektor Pendidikan MARA (IPMa)**")
+        st.write("**Ringkasan Maklumat Pelajar di bawah Sektor Pendidikan MARA (IPMa) - Setakat 31 Julai 2026**")
         
-        st.subheader("Pendidikan Menengah")
-        with st.expander("Bahagian Pendidikan Menengah"):
-            st.info("Ruangan data sekolah menengah MARA.")
+        # 1. High-Level KPIs
+        st.subheader("Prestasi Keseluruhan (IPMa & Tajaan)")
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            st.metric(label="Enrolmen IPMa 2026", value="165,828")
+        with col2:
+            st.metric(label="Kapasiti Fasiliti Akademik", value="159,870")
+        with col3:
+            st.metric(label="Pelajar Tajaan Semasa (BPP)", value="76,067")
+        with col4:
+            st.metric(label="Jumlah Keseluruhan Pelajar", value="241,895")
             
-        st.subheader("Pendidikan Kemahiran")
-        with st.expander("Bahagian Kemahiran dan Teknikal"):
-            st.info("Ruangan data BKT.")
-        with st.expander("UniKL & GMI"):
-            st.info("Ruangan data pendaftaran & profil pelajar UniKL dan GMI.")
-        with st.expander("GIATMARA"):
-            st.info("Ruangan data pelatih GIATMARA.")
-            
-        st.subheader("Pendidikan Tinggi")
-        with st.expander("KM/KPM/KPTM/UPTM"):
-            st.info("Ruangan data KM/KPM/KPTM/UPTM.")
-        with st.expander("Program Pendidikan Tinggi MARA"):
-            st.info("Ruangan data Program Pendidikan Tinggi.")
-            
-        st.subheader("Penganjuran Pelajaran")
-        with st.expander("Program Penganjuran Pelajaran MARA"):
-            st.info("Ruangan data penajaan pelajar.")
+        st.divider()
 
+        # 2. Main Data Table for the Interactive Chart
+        data_institusi = {
+            "Institusi": ["MRSM", "GIATMARA", "TVETMARA", "GMI", "UniKL", "Kolej MARA", "KPM", "KPTM", "UPTM"],
+            "Enrolmen 2026": [34544, 15217, 17854, 2779, 34935, 1559, 5718, 25360, 8689],
+            "Fasiliti Akademik": [39750, 10699, 21258, 5000, 25000, 3755, 6606, 22900, 5800]
+        }
+        df_institusi = pd.DataFrame(data_institusi)
+        
+        # 3. Interactive Chart
+        st.subheader("Perbandingan Enrolmen 2026 vs Fasiliti Akademik")
+        df_chart = df_institusi.set_index("Institusi")
+        st.bar_chart(df_chart[["Enrolmen 2026", "Fasiliti Akademik"]], color=["#FF4B4B", "#1E88E5"])
+
+        # 4. Detailed Expanders
+        st.subheader("Pecahan Terperinci Mengikut Bahagian")
+        
+        with st.expander("Pendidikan Menengah (BPM)"):
+            st.write("**Maktab Rendah Sains MARA (MRSM)**")
+            st.write("- Kapasiti Akademik: 39,750 | Enrolmen 2026: 34,544")
+            st.write("- Pelajar Baharu: 9,843 | Pelajar Tamat 2026: 0")
+            
+        with st.expander("Kemahiran dan Teknikal (TVET)"):
+            st.write("**Jumlah Keseluruhan BKT:** Kapasiti Akademik 81,059 | Enrolmen 89,958")
+            st.table(pd.DataFrame({
+                "Pusat": ["GIATMARA", "TVETMARA", "GMI", "UniKL"],
+                "Kapasiti Akademik": [10699, 21258, 5000, 25000],
+                "Enrolmen 2026": [15217, 17854, 2779, 34935]
+            }))
+            
+        with st.expander("Pendidikan Tinggi (BPT)"):
+            st.write("**Jumlah Keseluruhan BPT:** Kapasiti Akademik 39,061 | Enrolmen 41,326")
+            st.table(pd.DataFrame({
+                "Pusat": ["Kolej MARA (KM)", "Kolej Profesional MARA (KPM)", "Kolej Poly-Tech MARA (KPTM)", "UPTM"],
+                "Kapasiti Akademik": [3755, 6606, 22900, 5800],
+                "Enrolmen 2026": [1559, 5718, 25360, 8689]
+            }))
+            
+        with st.expander("Penganjuran Pelajaran (BPP)"):
+            st.write("**Pecahan Pelajar Tajaan Semasa**")
+            st.table(pd.DataFrame({
+                "Kategori": ["IPMa", "Dalam Negara (Bukan IPMa)", "Luar Negara"],
+                "Tajaan Baharu": [7497, 237, 640],
+                "Pelajar Semasa": [48263, 24259, 3545]
+            }))
     elif page == "Sektor Pelaburan":
         with st.expander("Ringkasan Syarikat MARA", expanded=True):
             st.info("Ruangan profil syarikat-syarikat MARA.")
