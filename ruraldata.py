@@ -1,14 +1,31 @@
 import streamlit as st
 import pandas as pd
+import pyrebase
 
-# 1. PAGE CONFIGURATION
+# 1. FIREBASE CONFIGURATION
+firebaseConfig = {
+    "apiKey": "AIzaSyA5ZBYaiDGBkqRKxcTk4-tXHEqnJ8B8cFU",
+    "authDomain": "rural-data-dashboard.firebaseapp.com",
+    "projectId": "rural-data-dashboard",
+    "storageBucket": "rural-data-dashboard.firebasestorage.app",
+    "messagingSenderId": "794242867908",
+    "appId": "1:794242867908:web:b2f69614ad299ef23b9f91",
+    "measurementId": "G-H7QZ6WBN0N",
+    "databaseURL": "" 
+}
+
+# Initialize Firebase
+firebase = pyrebase.initialize_app(firebaseConfig)
+auth = firebase.auth()
+
+# 2. PAGE CONFIGURATION
 st.set_page_config(page_title="Data Korporat", page_icon="📊", layout="centered")
 
-# 2. SESSION STATE (For Login)
+# 3. SESSION STATE (For Login)
 if 'logged_in' not in st.session_state:
     st.session_state['logged_in'] = False
 
-# 3. LOGIN SCREEN
+# 4. LOGIN SCREEN
 def login_screen():
     st.title("📊 Sistem Data Korporat")
     st.write("Sila log masuk untuk mengakses dashboard.")
@@ -17,17 +34,19 @@ def login_screen():
     password = st.text_input("Kata Laluan", type="password")
     
     if st.button("Log Masuk", type="primary", use_container_width=True):
-        if "staff_passwords" in st.secrets:
-            if email in st.secrets["staff_passwords"] and st.secrets["staff_passwords"][email] == password:
+        if email and password:
+            try:
+                # Authenticate securely with Firebase
+                user = auth.sign_in_with_email_and_password(email, password)
                 st.session_state['logged_in'] = True
-                st.session_state['current_user'] = email  # <--- ADD THIS LINE
+                st.session_state['current_user'] = email  
                 st.rerun()
-            else:
+            except Exception as e:
                 st.error("Emel atau Kata Laluan tidak sah. Sila cuba lagi.")
         else:
-            st.error("Ralat sistem: Konfigurasi log masuk tidak dijumpai.")
+            st.warning("Sila masukkan emel dan kata laluan.")
 
-# 4. MAIN APP ROUTING & LAYOUT
+# 5. MAIN APP ROUTING & LAYOUT
 if not st.session_state['logged_in']:
     login_screen()
 else:
