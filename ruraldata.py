@@ -156,12 +156,12 @@ else:
         # --- 4. DETAILED EXPANDERS ---
         st.subheader("Pecahan Terperinci Mengikut Bahagian")
         
-        # Filter the data we already downloaded into specific categories
+        # Python akan tolong asingkan data dari tab pertama ("Pendidikan") secara automatik!
         df_bpm = df_institusi[df_institusi['Institusi'] == 'MRSM']
         df_tvet = df_institusi[df_institusi['Institusi'].isin(["GIATMARA", "TVETMARA", "GMI", "UniKL"])]
         df_bpt = df_institusi[df_institusi['Institusi'].isin(["Kolej MARA", "KPM", "KPTM", "UPTM"])]
         
-        # Read the new sponsorship tab
+        # Ini untuk baca tab baru "Tajaan_BPP" yang awak baru buat di Langkah 1
         df_bpp = conn.read(spreadsheet=sheet_url, worksheet="Tajaan_BPP", ttl=0)
 
         with st.expander("Pendidikan Menengah (BPM)"):
@@ -170,7 +170,7 @@ else:
                 kap_mrsm = int(df_bpm.iloc[0]['Fasiliti Akademik'])
                 enrol_mrsm = int(df_bpm.iloc[0]['Enrolmen 2026'])
                 st.write(f"- Kapasiti Akademik: {kap_mrsm:,} | Enrolmen 2026: {enrol_mrsm:,}")
-            st.write("- Pelajar Baharu: 9,843 | Pelajar Tamat 2026: 0") # Can be moved to sheets later if needed
+            st.write("- Pelajar Baharu: 9,843 | Pelajar Tamat 2026: 0")
             
         with st.expander("Kemahiran dan Teknikal (TVET)"):
             st.write(f"**Jumlah Keseluruhan BKT:** Kapasiti Akademik {df_tvet['Fasiliti Akademik'].sum():,} | Enrolmen {df_tvet['Enrolmen 2026'].sum():,}")
