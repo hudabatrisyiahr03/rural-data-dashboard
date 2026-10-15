@@ -17,12 +17,15 @@ def login_screen():
     password = st.text_input("Kata Laluan", type="password")
     
     if st.button("Log Masuk", type="primary", use_container_width=True):
-        # Check against Streamlit Secrets
-        if email == st.secrets["credentials"]["admin_email"] and password == st.secrets["credentials"]["admin_password"]:
-            st.session_state['logged_in'] = True
-            st.rerun()
+        # Secure multiple-user validation
+        if "staff_passwords" in st.secrets:
+            if email in st.secrets["staff_passwords"] and st.secrets["staff_passwords"][email] == password:
+                st.session_state['logged_in'] = True
+                st.rerun()
+            else:
+                st.error("Emel atau Kata Laluan tidak sah. Sila cuba lagi.")
         else:
-            st.error("Emel atau Kata Laluan tidak sah. Sila cuba lagi.")
+            st.error("Ralat sistem: Konfigurasi log masuk tidak dijumpai.")
 
 # 4. MAIN APP ROUTING & LAYOUT
 if not st.session_state['logged_in']:
