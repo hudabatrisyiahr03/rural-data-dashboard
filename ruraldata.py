@@ -3,7 +3,7 @@ import pandas as pd
 import requests
 
 # 1. FIREBASE CONFIGURATION (Only the API Key is needed for login!)
-FIREBASE_API_KEY = "AIzaSyA5ZBYaiDGBkqRKxcTk4-tXHEqnJ8B8cFU"
+FIREBASE_API_KEY = "AIzaSyA5zBYaiDGBkqRKxcTk4-tXHEqnJ8B8cFU"
 
 # 2. PAGE CONFIGURATION
 st.set_page_config(page_title="Data Korporat", page_icon="📊", layout="centered")
