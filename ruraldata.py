@@ -148,11 +148,31 @@ else:
         # --- 3. INTERACTIVE CHART ---
         st.subheader("Perbandingan Enrolmen 2026 vs Fasiliti Akademik")
         
-        df_institusi = conn.read(spreadsheet=sheet_url, worksheet="Pendidikan", usecols=[0, 1, 2], ttl=0)
+        # CHANGED: usecols=[0, 1, 2, 3, 4] so it reads all 5 columns from the sheet
+        df_institusi = conn.read(spreadsheet=sheet_url, worksheet="Pendidikan", usecols=[0, 1, 2, 3, 4], ttl=0)
         df_chart = df_institusi.set_index("Institusi")
         
         st.bar_chart(df_chart[["Enrolmen 2026", "Fasiliti Akademik"]], color=["#FF4B4B", "#1E88E5"])
 
+        # --- 4. DETAILED EXPANDERS ---
+        st.subheader("Pecahan Terperinci Mengikut Bahagian")
+        
+        df_bpm = df_institusi[df_institusi['Institusi'] == 'MRSM']
+        df_tvet = df_institusi[df_institusi['Institusi'].isin(["GIATMARA", "TVETMARA", "GMI", "UniKL"])]
+        df_bpt = df_institusi[df_institusi['Institusi'].isin(["Kolej MARA", "KPM", "KPTM", "UPTM"])]
+        df_bpp = conn.read(spreadsheet=sheet_url, worksheet="Tajaan_BPP", ttl=0)
+
+        with st.expander("Pendidikan Menengah (BPM)"):
+            st.write("**Maktab Rendah Sains MARA (MRSM)**")
+            if not df_bpm.empty:
+                # Python now pulls every single number directly from the Google Sheet!
+                kap_mrsm = int(df_bpm.iloc[0]['Fasiliti Akademik'])
+                enrol_mrsm = int(df_bpm.iloc[0]['Enrolmen 2026'])
+                baharu_mrsm = int(df_bpm.iloc[0]['Pelajar Baharu'])
+                tamat_mrsm = int(df_bpm.iloc[0]['Pelajar Tamat 2026'])
+                
+                st.write(f"- Kapasiti Akademik: {kap_mrsm:,} | Enrolmen 2026: {enrol_mrsm:,}")
+                st.write(f"- Pelajar Baharu: {baharu_mrsm:,} | Pelajar Tamat 2026: {tamat_mrsm:,}")
         # --- 4. DETAILED EXPANDERS ---
         st.subheader("Pecahan Terperinci Mengikut Bahagian")
         
