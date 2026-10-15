@@ -41,7 +41,7 @@ else:
         "Sektor Keusahawanan",
         "Sektor Pendidikan",
         "Sektor Pelaburan",
-        "Ringkasan Keseluruhan"
+        "Ringkasan Keseluruhan",
         "Profil Pengguna"
     ]
     
