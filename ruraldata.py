@@ -34,7 +34,10 @@ def login_screen():
                 st.session_state['current_user'] = email  
                 st.rerun()
             else:
-                st.error("Emel atau Kata Laluan tidak sah. Sila cuba lagi.")
+                # DEBUG: Show the exact error from Firebase
+                error_data = response.json()
+                firebase_error = error_data.get("error", {}).get("message", "Unknown Error")
+                st.error(f"Ralat Firebase: {firebase_error}")
         else:
             st.warning("Sila masukkan emel dan kata laluan.")
 
