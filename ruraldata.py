@@ -1,22 +1,9 @@
 import streamlit as st
 import pandas as pd
-import pyrebase
+import requests
 
-# 1. FIREBASE CONFIGURATION
-firebaseConfig = {
-    "apiKey": "AIzaSyA5ZBYaiDGBkqRKxcTk4-tXHEqnJ8B8cFU",
-    "authDomain": "rural-data-dashboard.firebaseapp.com",
-    "projectId": "rural-data-dashboard",
-    "storageBucket": "rural-data-dashboard.firebasestorage.app",
-    "messagingSenderId": "794242867908",
-    "appId": "1:794242867908:web:b2f69614ad299ef23b9f91",
-    "measurementId": "G-H7QZ6WBN0N",
-    "databaseURL": "" 
-}
-
-# Initialize Firebase
-firebase = pyrebase.initialize_app(firebaseConfig)
-auth = firebase.auth()
+# 1. FIREBASE CONFIGURATION (Only the API Key is needed for login!)
+FIREBASE_API_KEY = "AIzaSyA5ZBYaiDGBkqRKxcTk4-tXHEqnJ8B8cFU"
 
 # 2. PAGE CONFIGURATION
 st.set_page_config(page_title="Data Korporat", page_icon="📊", layout="centered")
@@ -35,13 +22,18 @@ def login_screen():
     
     if st.button("Log Masuk", type="primary", use_container_width=True):
         if email and password:
-            try:
-                # Authenticate securely with Firebase
-                user = auth.sign_in_with_email_and_password(email, password)
+            # Talk directly to the Firebase Auth server
+            url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_API_KEY}"
+            payload = {"email": email, "password": password, "returnSecureToken": True}
+            
+            response = requests.post(url, json=payload)
+            
+            # 200 means the server confirmed the login is correct
+            if response.status_code == 200:
                 st.session_state['logged_in'] = True
                 st.session_state['current_user'] = email  
                 st.rerun()
-            except Exception as e:
+            else:
                 st.error("Emel atau Kata Laluan tidak sah. Sila cuba lagi.")
         else:
             st.warning("Sila masukkan emel dan kata laluan.")
