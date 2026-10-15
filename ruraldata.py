@@ -221,17 +221,33 @@ else:
         
         # Pull the staff database directly from Google Sheets
         df_profil = conn.read(spreadsheet=sheet_url, worksheet="Profil_Staf", ttl=0)
-        
-        # Search the sheet for the row matching the logged-in email
         user_row = df_profil[df_profil['Emel'] == current_email]
         
-        # Display the profile card
         if not user_row.empty:
+            nama = user_row.iloc[0]['Nama']
+            jawatan = user_row.iloc[0]['Jawatan']
+            jabatan = user_row.iloc[0]['Jabatan']
+            
             st.success("Profil berjaya dimuat turun dari pangkalan data.")
-            st.write(f"**Nama:** {user_row.iloc[0]['Nama']}")
-            st.write(f"**Emel:** {current_email}")
-            st.write(f"**Jawatan:** {user_row.iloc[0]['Jawatan']}")
-            st.write(f"**Jabatan:** {user_row.iloc[0]['Jabatan']}")
+            
+            # Create a 2-column layout (1 part for picture, 3 parts for text)
+            col1, col2 = st.columns([1, 3])
+            
+            with col1:
+                # Automatically generate a profile picture based on the user's name
+                avatar_url = f"https://ui-avatars.com/api/?name={nama.replace(' ', '+')}&size=200&background=1E88E5&color=fff&rounded=true"
+                st.image(avatar_url, use_container_width=True)
+                
+            with col2:
+                st.markdown(f"## {nama}")
+                st.markdown(f"📧 **Emel:** `{current_email}`")
+                st.markdown(f"💼 **Jawatan:** {jawatan}")
+                st.markdown(f"🏢 **Jabatan:** {jabatan}")
+                
+            st.divider()
+            
+            with st.expander("Tetapan Lanjutan"):
+                st.info("Di sini kita boleh tambah fungsi tukar kata laluan atau kemas kini gambar pada masa akan datang.")
         else:
             st.write(f"**Emel:** {current_email}")
             st.warning("Maklumat profil tambahan tidak dijumpai dalam pangkalan data.")
