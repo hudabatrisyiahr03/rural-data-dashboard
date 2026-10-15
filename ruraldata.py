@@ -156,7 +156,7 @@ else:
         
         st.bar_chart(df_chart[["Enrolmen 2026", "Fasiliti Akademik"]], color=["#FF4B4B", "#1E88E5"])
 
-        # --- 4. DETAILED EXPANDERS ---
+        # --- 4. DETAILED TABS (UI UPGRADE) ---
         st.subheader("Pecahan Terperinci Mengikut Bahagian")
         
         df_bpm = df_institusi[df_institusi['Institusi'] == 'MRSM']
@@ -164,28 +164,39 @@ else:
         df_bpt = df_institusi[df_institusi['Institusi'].isin(["Kolej MARA", "KPM", "KPTM", "UPTM"])]
         df_bpp = conn.read(spreadsheet=sheet_url, worksheet="Tajaan_BPP", ttl=0)
 
-        with st.expander("Pendidikan Menengah (BPM)"):
-            st.write("**Maktab Rendah Sains MARA (MRSM)**")
+        # Create horizontal tabs instead of vertical expanders!
+        tab1, tab2, tab3, tab4 = st.tabs([
+            "🏫 Pendidikan Menengah (BPM)", 
+            "⚙️ Kemahiran & Teknikal (TVET)", 
+            "🎓 Pendidikan Tinggi (BPT)", 
+            "🌍 Penganjuran Pelajaran (BPP)"
+        ])
+
+        with tab1:
+            st.markdown("#### Maktab Rendah Sains MARA (MRSM)")
             if not df_bpm.empty:
-                # Python now pulls every single number directly from the Google Sheet!
                 kap_mrsm = int(df_bpm.iloc[0]['Fasiliti Akademik'])
                 enrol_mrsm = int(df_bpm.iloc[0]['Enrolmen 2026'])
                 baharu_mrsm = int(df_bpm.iloc[0]['Pelajar Baharu'])
                 tamat_mrsm = int(df_bpm.iloc[0]['Pelajar Tamat 2026'])
                 
-                st.write(f"- Kapasiti Akademik: {kap_mrsm:,} | Enrolmen 2026: {enrol_mrsm:,}")
-                st.write(f"- Pelajar Baharu: {baharu_mrsm:,} | Pelajar Tamat 2026: {tamat_mrsm:,}")
-                
-        with st.expander("Kemahiran dan Teknikal (TVET)"):
-            st.write(f"**Jumlah Keseluruhan BKT:** Kapasiti Akademik {df_tvet['Fasiliti Akademik'].sum():,} | Enrolmen {df_tvet['Enrolmen 2026'].sum():,}")
+                # Use columns inside the tab for a cleaner layout
+                col_a, col_b = st.columns(2)
+                col_a.info(f"**Kapasiti Akademik:** {kap_mrsm:,}")
+                col_a.success(f"**Enrolmen 2026:** {enrol_mrsm:,}")
+                col_b.warning(f"**Pelajar Baharu:** {baharu_mrsm:,}")
+                col_b.error(f"**Pelajar Tamat 2026:** {tamat_mrsm:,}")
+            
+        with tab2:
+            st.markdown(f"**Jumlah Keseluruhan BKT:** Kapasiti {df_tvet['Fasiliti Akademik'].sum():,} | Enrolmen {df_tvet['Enrolmen 2026'].sum():,}")
             st.dataframe(df_tvet, hide_index=True, use_container_width=True)
             
-        with st.expander("Pendidikan Tinggi (BPT)"):
-            st.write(f"**Jumlah Keseluruhan BPT:** Kapasiti Akademik {df_bpt['Fasiliti Akademik'].sum():,} | Enrolmen {df_bpt['Enrolmen 2026'].sum():,}")
+        with tab3:
+            st.markdown(f"**Jumlah Keseluruhan BPT:** Kapasiti {df_bpt['Fasiliti Akademik'].sum():,} | Enrolmen {df_bpt['Enrolmen 2026'].sum():,}")
             st.dataframe(df_bpt, hide_index=True, use_container_width=True)
             
-        with st.expander("Penganjuran Pelajaran (BPP)"):
-            st.write("**Pecahan Pelajar Tajaan Semasa**")
+        with tab4:
+            st.markdown("**Pecahan Pelajar Tajaan Semasa**")
             st.dataframe(df_bpp, hide_index=True, use_container_width=True)
             
     elif page == "Sektor Pelaburan":
