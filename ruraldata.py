@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import requests
+from streamlit_gsheets import GSheetsConnection
 
 # 1. FIREBASE CONFIGURATION (Only the API Key is needed for login!)
 FIREBASE_API_KEY = "AIzaSyA5zBYaiDGBkqRKxcTk4-tXHEqnJ8B8cFU"
@@ -137,13 +138,9 @@ else:
             
         st.divider()
 
-        # 2. Main Data Table for the Interactive Chart
-        data_institusi = {
-            "Institusi": ["MRSM", "GIATMARA", "TVETMARA", "GMI", "UniKL", "Kolej MARA", "KPM", "KPTM", "UPTM"],
-            "Enrolmen 2026": [34544, 15217, 17854, 2779, 34935, 1559, 5718, 25360, 8689],
-            "Fasiliti Akademik": [39750, 10699, 21258, 5000, 25000, 3755, 6606, 22900, 5800]
-        }
-        df_institusi = pd.DataFrame(data_institusi)
+        # 2. Main Data Table for the Interactive Chart (Pulled Live from Google Sheets)
+        conn = st.connection("gsheets", type=GSheetsConnection)
+        df_institusi = conn.read(worksheet="Pendidikan", usecols=[0, 1, 2])
         
         # 3. Interactive Chart
         st.subheader("Perbandingan Enrolmen 2026 vs Fasiliti Akademik")
