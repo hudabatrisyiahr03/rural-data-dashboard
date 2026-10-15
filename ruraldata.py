@@ -123,20 +123,24 @@ else:
     elif page == "Sektor Pendidikan":
         st.write("**Ringkasan Maklumat Pelajar di bawah Sektor Pendidikan MARA (IPMa) - Setakat 31 Julai 2026**")
         
-        # 1. High-Level KPIs
+        # 1. High-Level KPIs (Pulled live from the 'KPI_Pendidikan' tab)
+        df_kpi = conn.read(spreadsheet=sheet_url, worksheet="KPI_Pendidikan", ttl=0)
+        
+        # Convert the table into a simple dictionary so we can call the numbers easily
+        kpi_data = df_kpi.set_index("Metrik")["Nilai"].to_dict()
+
         st.subheader("Prestasi Keseluruhan (IPMa & Tajaan)")
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
-            st.metric(label="Enrolmen IPMa 2026", value="165,828")
+            # We use {:,} to automatically add the commas (e.g. 165828 -> 165,828)
+            st.metric(label="Enrolmen IPMa 2026", value=f"{int(kpi_data['Enrolmen IPMa 2026']):,}")
         with col2:
-            st.metric(label="Kapasiti Fasiliti Akademik", value="159,870")
+            st.metric(label="Kapasiti Fasiliti Akademik", value=f"{int(kpi_data['Kapasiti Fasiliti Akademik']):,}")
         with col3:
-            st.metric(label="Pelajar Tajaan Semasa (BPP)", value="76,067")
+            st.metric(label="Pelajar Tajaan Semasa (BPP)", value=f"{int(kpi_data['Pelajar Tajaan Semasa (BPP)']):,}")
         with col4:
-            st.metric(label="Jumlah Keseluruhan Pelajar", value="241,895")
-            
-        st.divider()
+            st.metric(label="Jumlah Keseluruhan Pelajar", value=f"{int(kpi_data['Jumlah Keseluruhan Pelajar']):,}")
 
         # 2. Main Data Table for the Interactive Chart (Pulled Live from Google Sheets)
         conn = st.connection("gsheets", type=GSheetsConnection)
