@@ -70,6 +70,12 @@ else:
     # PAGE CONTENT ROUTING
     st.title(page)
 
+    # --- SETUP GLOBAL SPREADSHEET CONNECTION ---
+    # We put this here so EVERY page can use 'conn' and 'sheet_url'
+    conn = st.connection("gsheets", type=GSheetsConnection)
+    sheet_url = "https://docs.google.com/spreadsheets/d/15_qeN_tYUkPaV480_F7ENjTYFJ6vKeGcIDNKb8XEcGM/edit"
+
+
     if page == "Ringkasan Data Korporat":
         with st.expander("Info Korporat MARA", expanded=True):
             st.info("Ruangan untuk visualisasi Info Korporat MARA.")
@@ -123,10 +129,6 @@ else:
     elif page == "Sektor Pendidikan":
         st.write("**Ringkasan Maklumat Pelajar di bawah Sektor Pendidikan MARA (IPMa) - Setakat 31 Julai 2026**")
         
-        # --- 1. SETUP SPREADSHEET CONNECTION FIRST ---
-        conn = st.connection("gsheets", type=GSheetsConnection)
-        sheet_url = "https://docs.google.com/spreadsheets/d/15_qeN_tYUkPaV480_F7ENjTYFJ6vKeGcIDNKb8XEcGM/edit"
-
         # --- 2. HIGH-LEVEL KPIs ---
         st.subheader("Prestasi Keseluruhan (IPMa & Tajaan)")
         
@@ -173,25 +175,7 @@ else:
                 
                 st.write(f"- Kapasiti Akademik: {kap_mrsm:,} | Enrolmen 2026: {enrol_mrsm:,}")
                 st.write(f"- Pelajar Baharu: {baharu_mrsm:,} | Pelajar Tamat 2026: {tamat_mrsm:,}")
-        # --- 4. DETAILED EXPANDERS ---
-        st.subheader("Pecahan Terperinci Mengikut Bahagian")
-        
-        # Python akan tolong asingkan data dari tab pertama ("Pendidikan") secara automatik!
-        df_bpm = df_institusi[df_institusi['Institusi'] == 'MRSM']
-        df_tvet = df_institusi[df_institusi['Institusi'].isin(["GIATMARA", "TVETMARA", "GMI", "UniKL"])]
-        df_bpt = df_institusi[df_institusi['Institusi'].isin(["Kolej MARA", "KPM", "KPTM", "UPTM"])]
-        
-        # Ini untuk baca tab baru "Tajaan_BPP" yang awak baru buat di Langkah 1
-        df_bpp = conn.read(spreadsheet=sheet_url, worksheet="Tajaan_BPP", ttl=0)
-
-        with st.expander("Pendidikan Menengah (BPM)"):
-            st.write("**Maktab Rendah Sains MARA (MRSM)**")
-            if not df_bpm.empty:
-                kap_mrsm = int(df_bpm.iloc[0]['Fasiliti Akademik'])
-                enrol_mrsm = int(df_bpm.iloc[0]['Enrolmen 2026'])
-                st.write(f"- Kapasiti Akademik: {kap_mrsm:,} | Enrolmen 2026: {enrol_mrsm:,}")
-            st.write("- Pelajar Baharu: 9,843 | Pelajar Tamat 2026: 0")
-            
+                
         with st.expander("Kemahiran dan Teknikal (TVET)"):
             st.write(f"**Jumlah Keseluruhan BKT:** Kapasiti Akademik {df_tvet['Fasiliti Akademik'].sum():,} | Enrolmen {df_tvet['Enrolmen 2026'].sum():,}")
             st.dataframe(df_tvet, hide_index=True, use_container_width=True)
