@@ -1,14 +1,14 @@
 [theme]
-# A vibrant coral/salmon color for buttons and accents (pops beautifully)
-primaryColor = "#FF6B6B"
+# MARA Corporate Red for buttons and highlights
+primaryColor = "#E3000F"
 
-# A very light, cool grey/blue for the main background (cleaner than pure white)
-backgroundColor = "#F8F9FA"
+# Pure crisp white for the main background
+backgroundColor = "#FFFFFF"
 
-# A deep indigo/navy for the sidebar to make it look premium
-secondaryBackgroundColor = "#1E293B"
+# Very light grey for the sidebar so the text stays readable
+secondaryBackgroundColor = "#F0F2F6"
 
-# Dark slate for the main text, and the sidebar text will automatically adjust to white!
-textColor = "#334155"
+# Standard dark grey for high-contrast, readable text
+textColor = "#262730"
 
 font = "sans serif"
