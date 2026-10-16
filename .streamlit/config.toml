@@ -1,15 +1,14 @@
 [theme]
-# MARA Corporate Red for buttons, sliders, and primary accents
-primaryColor = "#E3000F"
+# A vibrant coral/salmon color for buttons and accents (pops beautifully)
+primaryColor = "#FF6B6B"
 
-# Pure white main background for a clean, professional look
-backgroundColor = "#FFFFFF"
+# A very light, cool grey/blue for the main background (cleaner than pure white)
+backgroundColor = "#F8F9FA"
 
-# Light gray-blue for the sidebar and expander backgrounds
-secondaryBackgroundColor = "#F4F6F9"
+# A deep indigo/navy for the sidebar to make it look premium
+secondaryBackgroundColor = "#1E293B"
 
-# Dark gray for text readability (softer on the eyes than pure black)
-textColor = "#262730"
+# Dark slate for the main text, and the sidebar text will automatically adjust to white!
+textColor = "#334155"
 
-# Modern, clean font
 font = "sans serif"
