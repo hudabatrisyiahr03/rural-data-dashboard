@@ -226,9 +226,28 @@ else:
             st.markdown(f"**Jumlah Keseluruhan BKT:** Kapasiti {df_tvet['Fasiliti Akademik'].sum():,} | Enrolmen {df_tvet['Enrolmen 2026'].sum():,}")
             st.dataframe(df_tvet, hide_index=True, use_container_width=True)
             
+            # Convert the data to CSV format in the background
+            csv_tvet = df_tvet.to_csv(index=False).encode('utf-8')
+            # Create the download button
+            st.download_button(
+                label="📥 Muat Turun Data TVET",
+                data=csv_tvet,
+                file_name="Data_TVET_MARA_2026.csv",
+                mime="text/csv"
+            )
+            
         with tab3:
             st.markdown(f"**Jumlah Keseluruhan BPT:** Kapasiti {df_bpt['Fasiliti Akademik'].sum():,} | Enrolmen {df_bpt['Enrolmen 2026'].sum():,}")
             st.dataframe(df_bpt, hide_index=True, use_container_width=True)
+            
+            # Convert and create button for BPT
+            csv_bpt = df_bpt.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                label="📥 Muat Turun Data BPT",
+                data=csv_bpt,
+                file_name="Data_BPT_MARA_2026.csv",
+                mime="text/csv"
+            )
             
         with tab4:
             st.markdown("**Pecahan Pelajar Tajaan Semasa**")
