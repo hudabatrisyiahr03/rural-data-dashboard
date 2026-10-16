@@ -1,14 +1,15 @@
 [theme]
-# Hot Pink for buttons and highlights
-primaryColor = "#FF69B4"
+# MARA Corporate Red for buttons, sliders, and primary accents
+primaryColor = "#E3000F"
 
-# Very light pink for the main background
-backgroundColor = "#FFF0F5"
+# Pure white main background for a clean, professional look
+backgroundColor = "#FFFFFF"
 
-# Solid pink for the sidebar
-secondaryBackgroundColor = "#FFB6C1"
+# Light gray-blue for the sidebar and expander backgrounds
+secondaryBackgroundColor = "#F4F6F9"
 
-# Dark text so you can still read it
-textColor = "#333333"
+# Dark gray for text readability (softer on the eyes than pure black)
+textColor = "#262730"
 
+# Modern, clean font
 font = "sans serif"
