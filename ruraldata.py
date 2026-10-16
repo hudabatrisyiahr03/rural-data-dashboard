@@ -47,7 +47,7 @@ if not st.session_state['logged_in']:
     login_screen()
 else:
     # SIDEBAR NAVIGATION
-    st.sidebar.image("logo_rc.png", width=150)
+    st.sidebar.image("mara_logo.png", width=150)
     st.sidebar.title("Navigasi Menu")
     
     menu_options = [
