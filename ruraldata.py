@@ -77,10 +77,45 @@ else:
 
 
     if page == "Ringkasan Data Korporat":
-        with st.expander("Info Korporat MARA", expanded=True):
-            st.info("Ruangan untuk visualisasi Info Korporat MARA.")
-        with st.expander("Dashboard Data Korporat"):
-            st.info("Ruangan untuk metrik utama Dashboard.")
+        # 1. Fetch user's name for the personalized greeting
+        current_email = st.session_state.get('current_user', '')
+        df_profil = conn.read(spreadsheet=sheet_url, worksheet="Profil_Staf", ttl=0)
+        user_row = df_profil[df_profil['Emel'] == current_email]
+        
+        # If the email is in the sheet, use their name. Otherwise, say "Pengguna" (User)
+        nama_pengguna = user_row.iloc[0]['Nama'] if not user_row.empty else "Pengguna"
+        
+        # Display Welcome Message
+        st.markdown(f"## 👋 Selamat Datang, {nama_pengguna}!")
+        st.write("Berikut adalah ringkasan eksekutif bagi pangkalan data korporat MARA untuk tahun 2026.")
+        st.divider()
+        
+        # 2. Fetch Master Metrics from our other tabs
+        # Get Total Students from Pendidikan
+        df_kpi = conn.read(spreadsheet=sheet_url, worksheet="KPI_Pendidikan", ttl=0)
+        kpi_data = df_kpi.set_index("Metrik")["Nilai"].to_dict()
+        jumlah_pelajar = int(kpi_data.get('Jumlah Keseluruhan Pelajar', 0))
+        
+        # Get Total Financing from Keusahawanan (automatically adds up the whole column!)
+        df_pembiayaan = conn.read(spreadsheet=sheet_url, worksheet="Pembiayaan_Perniagaan", ttl=0)
+        jumlah_pembiayaan = df_pembiayaan['Jumlah Pembiayaan (RM Juta)'].sum()
+        
+        # 3. Display Master Metric Cards
+        st.subheader("📊 Sorotan Utama")
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.metric(label="🎓 Keseluruhan Pelajar (IPMa & Tajaan)", value=f"{jumlah_pelajar:,}")
+        with col2:
+            st.metric(label="💰 Jumlah Pembiayaan Perniagaan", value=f"RM {jumlah_pembiayaan:.1f} Juta")
+        with col3:
+            st.metric(label="🏢 Pusat Pentadbiran Aktif", value="115") # We can make this dynamic later!
+            
+        st.divider()
+        
+        # 4. Quick Info
+        with st.expander("📌 Info Korporat MARA", expanded=True):
+            st.info("Papan pemuka ini memantau metrik utama merentas semua sektor MARA secara masa nyata (real-time) melalui pangkalan data awan (cloud database).")
 
     elif page == "Lampiran Pelaporan Data Korporat":
         with st.expander("Ringkasan Eksekutif Data Korporat", expanded=True):
