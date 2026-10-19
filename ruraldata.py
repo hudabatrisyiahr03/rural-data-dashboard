@@ -345,14 +345,42 @@ else:
             st.dataframe(df_bpp, hide_index=True, use_container_width=True)
             
     elif page == "Sektor Pelaburan":
-        with st.expander("Ringkasan Syarikat MARA", expanded=True):
-            st.info("Ruangan profil syarikat-syarikat MARA.")
-        with st.expander("Ringkasan Pelaburan MARA"):
-            st.info("Ruangan metrik pelaburan.")
-        with st.expander("Struktur Kumpulan Syarikat MARA"):
-            st.info("Ruangan carta organisasi/struktur syarikat.")
-        with st.expander("Aktiviti Kawalan Kredit"):
-            st.info("Ruangan data kawalan kredit.")
+        st.subheader("Data Tenaga Kerja Anak Syarikat MARA")
+        
+        # 1. Fetch Data
+        df_pelaburan = conn.read(spreadsheet=sheet_url, worksheet="Pelaburan", ttl=0)
+        
+        # 2. Calculate Key Metrics
+        jumlah_syarikat = len(df_pelaburan)
+        jumlah_pekerja = df_pelaburan['Jumlah'].sum()
+        
+        # 3. Display Metric Cards
+        col1, col2 = st.columns(2)
+        col1.metric("🏢 Jumlah Anak Syarikat (Direkodkan)", f"{jumlah_syarikat}")
+        col2.metric("👥 Keseluruhan Tenaga Kerja", f"{jumlah_pekerja:,}")
+        
+        st.divider()
+        
+        # 4. Display Visual and Table
+        st.markdown("**Saiz Tenaga Kerja Mengikut Syarikat**")
+        
+        # Set index for the bar chart so 'Syarikat' is on the X-axis
+        df_chart_pelaburan = df_pelaburan.set_index("Syarikat")
+        
+        # Display a clean bar chart 
+        st.bar_chart(df_chart_pelaburan["Jumlah"], color="#1E88E5")
+        
+        st.markdown("**Pecahan Kategori Pekerja (Eksekutif, Sokongan & Pengajar)**")
+        st.dataframe(df_pelaburan, hide_index=True, use_container_width=True)
+        
+        # Export Button
+        csv_pelaburan = df_pelaburan.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="📥 Muat Turun Data Anak Syarikat",
+            data=csv_pelaburan,
+            file_name="Data_Pelaburan_MARA_2026.csv",
+            mime="text/csv"
+        )
 
     elif page == "Ringkasan Keseluruhan":
         with st.expander("Ringkasan Keseluruhan Penerima Kemudahan MARA Kumulatif", expanded=True):
