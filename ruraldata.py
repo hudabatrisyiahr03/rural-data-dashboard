@@ -4,7 +4,7 @@ import requests
 from streamlit_gsheets import GSheetsConnection
 
 # 1. FIREBASE CONFIGURATION (Only the API Key is needed for login!)
-FIREBASE_API_KEY = "AIzaSyA5zBYaiDGBkqRKxcTk4-tXHEqnJ8B8cFU"
+FIREBASE_API_KEY = st.secrets["FIREBASE_API_KEY"]
 
 # 2. PAGE CONFIGURATION
 st.set_page_config(page_title="Data Korporat", page_icon="📊", layout="centered")
