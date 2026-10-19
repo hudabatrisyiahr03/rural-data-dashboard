@@ -164,49 +164,56 @@ else:
             st.info("Ruangan untuk graf dan jadual KPI.")
 
     elif page == "Sektor Khidmat Pengurusan":
-        st.subheader("Kedudukan Pengisian Jawatan MARA")
+        st.subheader("Data Sumber Manusia (HR)")
         
-        # 1. Fetch Real Data
-        df_hr = conn.read(spreadsheet=sheet_url, worksheet="Khidmat_Pengurusan", ttl=0)
+        # Create tabs to separate MARA internal staff from Subsidiary staff
+        tab_pusat, tab_syarikat = st.tabs(["🏢 Pusat Pentadbiran MARA", "💼 Anak Syarikat MARA"])
         
-        # 2. Calculate Exact Metrics from the Official Report
-        jumlah_peruntukan = df_hr['Peruntukan Jawatan'].sum()
-        jumlah_pengisian = df_hr['Pengisian Semasa'].sum()
-        kekosongan = jumlah_peruntukan - jumlah_pengisian
-        kadar_pengisian = (jumlah_pengisian / jumlah_peruntukan) * 100
-        
-        # 3. Display Metric Cards
-        col1, col2, col3, col4 = st.columns(4)
-        col1.metric("📋 Peruntukan Jawatan", f"{jumlah_peruntukan:,}")
-        col2.metric("👥 Pengisian Semasa", f"{jumlah_pengisian:,}")
-        col3.metric("📉 Kekosongan", f"{kekosongan:,}")
-        col4.metric("📈 Kadar Pengisian", f"{kadar_pengisian:.1f}%")
-        
-        st.divider()
-        
-        # 4. Display Visual and Table in Columns
-        col_chart, col_table = st.columns([1, 1])
-        
-        with col_chart:
-            st.markdown("**Taburan Pengisian Mengikut Pusat**")
-            # Set index for the bar chart so 'Pusat' is on the X-axis
-            df_chart_hr = df_hr.set_index("Pusat")
-            # Display a grouped bar chart for side-by-side comparison
-            st.bar_chart(df_chart_hr[["Peruntukan Jawatan", "Pengisian Semasa"]], color=["#262730", "#E3000F"])
+        with tab_pusat:
+            st.markdown("**Kedudukan Pengisian Jawatan MARA**")
             
-        with col_table:
-            st.markdown("**Data Terperinci (Setakat 31 Julai 2026)**")
-            st.dataframe(df_hr, hide_index=True, use_container_width=True)
+            df_hr = conn.read(spreadsheet=sheet_url, worksheet="Khidmat_Pengurusan", ttl=0)
             
-            # Export Button
-            csv_hr = df_hr.to_csv(index=False).encode('utf-8')
-            st.download_button(
-                label="📥 Muat Turun Data Perjawatan",
-                data=csv_hr,
-                file_name="Data_Perjawatan_MARA_Julai2026.csv",
-                mime="text/csv"
-            )
-
+            jumlah_peruntukan = df_hr['Peruntukan Jawatan'].sum()
+            jumlah_pengisian = df_hr['Pengisian Semasa'].sum()
+            kekosongan = jumlah_peruntukan - jumlah_pengisian
+            kadar_pengisian = (jumlah_pengisian / jumlah_peruntukan) * 100
+            
+            col1, col2, col3, col4 = st.columns(4)
+            col1.metric("📋 Peruntukan", f"{jumlah_peruntukan:,}")
+            col2.metric("👥 Pengisian", f"{jumlah_pengisian:,}")
+            col3.metric("📉 Kekosongan", f"{kekosongan:,}")
+            col4.metric("📈 Kadar", f"{kadar_pengisian:.1f}%")
+            
+            st.divider()
+            
+            col_chart, col_table = st.columns([1, 1])
+            with col_chart:
+                df_chart_hr = df_hr.set_index("Pusat")
+                st.bar_chart(df_chart_hr[["Peruntukan Jawatan", "Pengisian Semasa"]], color=["#262730", "#E3000F"])
+                
+            with col_table:
+                st.dataframe(df_hr, hide_index=True, use_container_width=True)
+                csv_hr = df_hr.to_csv(index=False).encode('utf-8')
+                st.download_button("📥 Muat Turun Data (Pusat)", data=csv_hr, file_name="Data_Perjawatan_MARA.csv", mime="text/csv")
+                
+        with tab_syarikat:
+            st.markdown("**Pengisian Jawatan Anak Syarikat MARA**")
+            
+            # Fetch Data from the new Pelaburan sheet you just made
+            df_pelaburan = conn.read(spreadsheet=sheet_url, worksheet="Pelaburan", ttl=0)
+            
+            col_a, col_b = st.columns(2)
+            col_a.metric("🏢 Jumlah Anak Syarikat (Direkodkan)", f"{len(df_pelaburan)}")
+            col_b.metric("👥 Keseluruhan Tenaga Kerja", f"{df_pelaburan['Jumlah'].sum():,}")
+            
+            st.divider()
+            
+            # Display Visual and Table
+            df_chart_pelaburan = df_pelaburan.set_index("Syarikat")
+            st.bar_chart(df_chart_pelaburan["Jumlah"], color="#1E88E5")
+            st.dataframe(df_pelaburan, hide_index=True, use_container_width=True)
+            
     elif page == "Sektor Keusahawanan":
         with st.expander("Ringkasan Penerima Kemudahan Keusahawanan, Pembiayaan dan Penyewa MARA", expanded=True):
             st.info("Ruangan untuk statistik keseluruhan penerima kemudahan.")
@@ -345,42 +352,19 @@ else:
             st.dataframe(df_bpp, hide_index=True, use_container_width=True)
             
     elif page == "Sektor Pelaburan":
-        st.subheader("Data Tenaga Kerja Anak Syarikat MARA")
+        st.subheader("Data Pelaburan & Komersial MARA")
         
-        # 1. Fetch Data
-        df_pelaburan = conn.read(spreadsheet=sheet_url, worksheet="Pelaburan", ttl=0)
-        
-        # 2. Calculate Key Metrics
-        jumlah_syarikat = len(df_pelaburan)
-        jumlah_pekerja = df_pelaburan['Jumlah'].sum()
-        
-        # 3. Display Metric Cards
-        col1, col2 = st.columns(2)
-        col1.metric("🏢 Jumlah Anak Syarikat (Direkodkan)", f"{jumlah_syarikat}")
-        col2.metric("👥 Keseluruhan Tenaga Kerja", f"{jumlah_pekerja:,}")
-        
-        st.divider()
-        
-        # 4. Display Visual and Table
-        st.markdown("**Saiz Tenaga Kerja Mengikut Syarikat**")
-        
-        # Set index for the bar chart so 'Syarikat' is on the X-axis
-        df_chart_pelaburan = df_pelaburan.set_index("Syarikat")
-        
-        # Display a clean bar chart 
-        st.bar_chart(df_chart_pelaburan["Jumlah"], color="#1E88E5")
-        
-        st.markdown("**Pecahan Kategori Pekerja (Eksekutif, Sokongan & Pengajar)**")
-        st.dataframe(df_pelaburan, hide_index=True, use_container_width=True)
-        
-        # Export Button
-        csv_pelaburan = df_pelaburan.to_csv(index=False).encode('utf-8')
-        st.download_button(
-            label="📥 Muat Turun Data Anak Syarikat",
-            data=csv_pelaburan,
-            file_name="Data_Pelaburan_MARA_2026.csv",
-            mime="text/csv"
-        )
+        with st.expander("Ringkasan Syarikat MARA", expanded=True):
+            st.info("Ruangan profil dan metrik kewangan syarikat-syarikat MARA (Akan Datang).")
+            
+        with st.expander("Ringkasan Pelaburan MARA"):
+            st.info("Ruangan prestasi pelaburan, ROI, dan aset korporat.")
+            
+        with st.expander("Struktur Kumpulan Syarikat MARA"):
+            st.info("Ruangan carta organisasi dan pegangan ekuiti anak syarikat.")
+            
+        with st.expander("Aktiviti Kawalan Kredit"):
+            st.info("Ruangan data pemantauan kredit dan bayaran balik.")
 
     elif page == "Ringkasan Keseluruhan":
         with st.expander("Ringkasan Keseluruhan Penerima Kemudahan MARA Kumulatif", expanded=True):
