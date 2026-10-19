@@ -111,14 +111,18 @@ else:
     # PAGE CONTENT ROUTING
     st.title(page)
 
-    # --- SETUP GLOBAL SPREADSHEET CONNECTION ---
-    conn = st.connection("gsheets", type=GSheetsConnection)
+    # --- SETUP GLOBAL SPREADSHEET CONNECTION & CACHING ---
     sheet_url = "https://docs.google.com/spreadsheets/d/15_qeN_tYUkPaV480_F7ENjTYFJ6vKeGcIDNKb8XEcGM/edit"
 
+    @st.cache_data(ttl=600) # Caches the data for 600 seconds (10 minutes)
+    def load_data(worksheet_name, usecols=None):
+        conn = st.connection("gsheets", type=GSheetsConnection)
+        return conn.read(spreadsheet=sheet_url, worksheet=worksheet_name, usecols=usecols)
+        
     if page == "Ringkasan Data Korporat":
         # 1. Fetch user's name for the personalized greeting
         current_email = st.session_state.get('current_user', '')
-        df_profil = conn.read(spreadsheet=sheet_url, worksheet="Profil_Staf", ttl=0)
+        df_profil = load_data("Profil_Staf")
         user_row = df_profil[df_profil['Emel'] == current_email]
         
         # If the email is in the sheet, use their name. Otherwise, say "Pengguna" (User)
@@ -131,12 +135,12 @@ else:
         
         # 2. Fetch Master Metrics from our other tabs
         # Get Total Students from Pendidikan
-        df_kpi = conn.read(spreadsheet=sheet_url, worksheet="KPI_Pendidikan", ttl=0)
+        df_kpi = load_data("KPI_Pendidikan")
         kpi_data = df_kpi.set_index("Metrik")["Nilai"].to_dict()
         jumlah_pelajar = int(kpi_data.get('Jumlah Keseluruhan Pelajar', 0))
         
         # Get Total Financing from Keusahawanan
-        df_pembiayaan = conn.read(spreadsheet=sheet_url, worksheet="Pembiayaan_Perniagaan", ttl=0)
+        df_pembiayaan = load_data("Pembiayaan_Perniagaan")
         jumlah_pembiayaan = df_pembiayaan['Jumlah Pembiayaan (RM Juta)'].sum()
         
         # 3. Display Master Metric Cards
@@ -172,7 +176,7 @@ else:
         with tab_pusat:
             st.markdown("**Kedudukan Pengisian Jawatan MARA**")
             
-            df_hr = conn.read(spreadsheet=sheet_url, worksheet="Khidmat_Pengurusan", ttl=0)
+            df_hr = load_data("Khidmat_Pengurusan")
             
             jumlah_peruntukan = df_hr['Peruntukan Jawatan'].sum()
             jumlah_pengisian = df_hr['Pengisian Semasa'].sum()
@@ -201,7 +205,7 @@ else:
             st.markdown("**Pengisian Jawatan Anak Syarikat MARA**")
             
             # Fetch Data from the new Pelaburan sheet you just made
-            df_pelaburan = conn.read(spreadsheet=sheet_url, worksheet="Pelaburan", ttl=0)
+            df_pelaburan = load_data("Pelaburan")
             
             col_a, col_b = st.columns(2)
             col_a.metric("🏢 Jumlah Anak Syarikat (Direkodkan)", f"{len(df_pelaburan)}")
@@ -249,7 +253,7 @@ else:
         # --- 2. HIGH-LEVEL KPIs ---
         st.subheader("Prestasi Keseluruhan (IPMa & Tajaan)")
         
-        df_kpi = conn.read(spreadsheet=sheet_url, worksheet="KPI_Pendidikan", ttl=0)
+        df_kpi = load_data("KPI_Pendidikan")
         kpi_data = df_kpi.set_index("Metrik")["Nilai"].to_dict()
 
         col1, col2, col3, col4 = st.columns(4)
@@ -267,7 +271,7 @@ else:
         # --- 3. INTERACTIVE CHART ---
         st.subheader("Perbandingan Enrolmen 2026 vs Fasiliti Akademik")
         
-        df_institusi = conn.read(spreadsheet=sheet_url, worksheet="Pendidikan", usecols=[0, 1, 2, 3, 4], ttl=0)
+        df_institusi = load_data("Pendidikan", usecols=[0, 1, 2, 3, 4])
         df_chart = df_institusi.set_index("Institusi")
         
         st.bar_chart(df_chart[["Enrolmen 2026", "Fasiliti Akademik"]], color=["#FF4B4B", "#1E88E5"])
@@ -278,7 +282,7 @@ else:
         df_bpm = df_institusi[df_institusi['Institusi'] == 'MRSM']
         df_tvet = df_institusi[df_institusi['Institusi'].isin(["GIATMARA", "TVETMARA", "GMI", "UniKL"])]
         df_bpt = df_institusi[df_institusi['Institusi'].isin(["Kolej MARA", "KPM", "KPTM", "UPTM"])]
-        df_bpp = conn.read(spreadsheet=sheet_url, worksheet="Tajaan_BPP", ttl=0)
+        df_bpp = load_data("Tajaan_BPP")
 
         # Create horizontal tabs instead of vertical expanders!
         tab1, tab2, tab3, tab4 = st.tabs([
@@ -377,7 +381,7 @@ else:
         current_email = st.session_state.get('current_user', 'Tiada Data')
         
         # Pull the staff database directly from Google Sheets
-        df_profil = conn.read(spreadsheet=sheet_url, worksheet="Profil_Staf", ttl=0)
+        df_profil = load_data("Profil_Staf")
         user_row = df_profil[df_profil['Emel'] == current_email]
         
         if not user_row.empty:
