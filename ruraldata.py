@@ -463,6 +463,10 @@ else:
                             
                             # 6. Save link to Google Sheets
                             conn = st.connection("gsheets", type=GSheetsConnection)
+                            
+                            # Paksa kolum menjadi teks (string) untuk mengelakkan ralat Pandas
+                            df_profil['URL_Gambar'] = df_profil['URL_Gambar'].astype(str) 
+                            
                             df_profil.loc[df_profil['Emel'] == current_email, 'URL_Gambar'] = public_url
                             conn.update(worksheet="Profil_Staf", data=df_profil)
                             
