@@ -224,16 +224,33 @@ else:
                 col_b.error(f"**Pelajar Tamat 2026:** {tamat_mrsm:,}")
             
         with tab2:
-            st.markdown(f"**Jumlah Keseluruhan BKT:** Kapasiti {df_tvet['Fasiliti Akademik'].sum():,} | Enrolmen {df_tvet['Enrolmen 2026'].sum():,}")
-            st.dataframe(df_tvet, hide_index=True, use_container_width=True)
+            st.markdown("#### Institusi Kemahiran & Teknikal (TVET)")
             
-            # Convert the data to CSV format in the background
-            csv_tvet = df_tvet.to_csv(index=False).encode('utf-8')
-            # Create the download button
+            # 1. Create the interactive dropdown filter
+            senarai_institusi = df_tvet['Institusi'].unique().tolist()
+            pilihan_tvet = st.multiselect(
+                "Tapis Institusi TVET:", 
+                options=senarai_institusi, 
+                default=senarai_institusi
+            )
+            
+            # 2. Filter the dataframe based on user selection
+            df_tvet_filtered = df_tvet[df_tvet['Institusi'].isin(pilihan_tvet)]
+            
+            # 3. Calculate dynamic totals that change when the filter changes
+            kapasiti_total = df_tvet_filtered['Fasiliti Akademik'].sum()
+            enrolmen_total = df_tvet_filtered['Enrolmen 2026'].sum()
+            st.markdown(f"**Jumlah Semasa:** Kapasiti {kapasiti_total:,} | Enrolmen {enrolmen_total:,}")
+            
+            # 4. Display the filtered table
+            st.dataframe(df_tvet_filtered, hide_index=True, use_container_width=True)
+            
+            # 5. Make the download button export ONLY the filtered data
+            csv_tvet = df_tvet_filtered.to_csv(index=False).encode('utf-8')
             st.download_button(
-                label="📥 Muat Turun Data TVET",
+                label="📥 Muat Turun Data TVET (Ditapis)",
                 data=csv_tvet,
-                file_name="Data_TVET_MARA_2026.csv",
+                file_name="Data_TVET_MARA_Tapis_2026.csv",
                 mime="text/csv"
             )
             
