@@ -395,8 +395,15 @@ else:
             col1, col2 = st.columns([1, 3])
             
             with col1:
-                # Automatically generate a profile picture based on the user's name
-                avatar_url = f"https://ui-avatars.com/api/?name={nama.replace(' ', '+')}&size=200&background=1E88E5&color=fff&rounded=true"
+                # Check if the user has a custom image URL in the database
+                url_gambar = user_row.iloc[0].get('URL_Gambar', '')
+                
+                # If no custom image exists, generate the default blue avatar
+                if pd.isna(url_gambar) or url_gambar == '':
+                    avatar_url = f"https://ui-avatars.com/api/?name={nama.replace(' ', '+')}&size=200&background=1E88E5&color=fff&rounded=true"
+                else:
+                    avatar_url = url_gambar
+                    
                 st.image(avatar_url, use_container_width=True)
                 
             with col2:
@@ -422,3 +429,44 @@ else:
                     else:
                         error_msg = response.json().get("error", {}).get("message", "Ralat tidak diketahui")
                         st.error(f"Gagal menghantar emel: {error_msg}")
+                        
+            with st.expander("🖼️ Kemas Kini Gambar Profil"):
+                st.info("Muat naik gambar profil baharu (JPG/PNG).")
+                uploaded_file = st.file_uploader("Pilih Gambar", type=["jpg", "png", "jpeg"])
+                
+                if uploaded_file is not None:
+                    if st.button("Simpan Gambar", type="primary"):
+                        
+                        # 1. Supabase Credentials
+                        SUPABASE_URL = "https://yafabimzeoriwrightzu.supabase.co"
+                        SUPABASE_KEY = "sb_publishable_P1GHTLmhIAMLaW4G5p8bEQ_Conbjfo4"
+                        
+                        # 2. Create a clean file name using the user's email
+                        file_ext = uploaded_file.name.split(".")[-1]
+                        file_name = f"{current_email.replace('@', '_')}.{file_ext}"
+                        
+                        # 3. Setup the API request to Supabase Storage
+                        upload_url = f"{SUPABASE_URL}/storage/v1/object/avatars/{file_name}"
+                        headers = {
+                            "apikey": SUPABASE_KEY,
+                            "Authorization": f"Bearer {SUPABASE_KEY}",
+                            "Content-Type": uploaded_file.type,
+                            "x-upsert": "true" 
+                        }
+                        
+                        # 4. Upload the file
+                        response = requests.post(upload_url, headers=headers, data=uploaded_file.getvalue())
+                        
+                        if response.status_code == 200:
+                            # 5. Generate the public link
+                            public_url = f"{SUPABASE_URL}/storage/v1/object/public/avatars/{file_name}"
+                            
+                            # 6. Save link to Google Sheets
+                            conn = st.connection("gsheets", type=GSheetsConnection)
+                            df_profil.loc[df_profil['Emel'] == current_email, 'URL_Gambar'] = public_url
+                            conn.update(worksheet="Profil_Staf", data=df_profil)
+                            
+                            st.cache_data.clear()
+                            st.success("✅ Gambar profil berjaya dikemas kini! Sila muat semula (refresh) halaman.")
+                        else:
+                            st.error(f"Gagal memuat naik: {response.text}")
