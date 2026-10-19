@@ -3,7 +3,7 @@ import pandas as pd
 import requests
 from streamlit_gsheets import GSheetsConnection
 
-# 1. FIREBASE CONFIGURATION (Only the API Key is needed for login!)
+# 1. FIREBASE CONFIGURATION
 FIREBASE_API_KEY = st.secrets["FIREBASE_API_KEY"]
 
 # 2. PAGE CONFIGURATION
@@ -13,38 +13,62 @@ st.set_page_config(page_title="Data Korporat", page_icon="📊", layout="centere
 if 'logged_in' not in st.session_state:
     st.session_state['logged_in'] = False
 
-# 4. LOGIN SCREEN
-def login_screen():
-    st.title("📊 Sistem Data Korporat")
-    st.write("Sila log masuk untuk mengakses dashboard.")
-    
-    email = st.text_input("Emel")
-    password = st.text_input("Kata Laluan", type="password")
-    
-    if st.button("Log Masuk", type="primary", use_container_width=True):
-        if email and password:
-            # Talk directly to the Firebase Auth server
-            url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_API_KEY}"
-            payload = {"email": email, "password": password, "returnSecureToken": True}
-            
-            response = requests.post(url, json=payload)
-            
-            # 200 means the server confirmed the login is correct
-            if response.status_code == 200:
-                st.session_state['logged_in'] = True
-                st.session_state['current_user'] = email  
-                st.rerun()
-            else:
-                # DEBUG: Show the exact error from Firebase
-                error_data = response.json()
-                firebase_error = error_data.get("error", {}).get("message", "Unknown Error")
-                st.error(f"Ralat Firebase: {firebase_error}")
-        else:
-            st.warning("Sila masukkan emel dan kata laluan.")
-
-# 5. MAIN APP ROUTING & LAYOUT
+# 4. LOGIN SCREEN & ROUTING
 if not st.session_state['logged_in']:
-    login_screen()
+    # --- HIDE SIDEBAR FOR LOGGED-OUT USERS ---
+    st.markdown(
+        """
+        <style>
+            [data-testid="collapsedControl"] {display: none;}
+            [data-testid="stSidebar"] {display: none;}
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    # --- CENTERED LOGIN CARD ---
+    # Create 3 columns [Left Space, Center Card, Right Space]
+    col1, col2, col3 = st.columns([1, 1.2, 1])
+    
+    with col2:
+        st.write("") # Adds vertical breathing room
+        st.write("")
+        
+        # Display the MARA logo centered above the login box
+        st.image("mara_logo.png", use_container_width=True)
+        
+        st.markdown("<h2 style='text-align: center; color: #262730;'>Portal Data Korporat</h2>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; color: #666;'>Sila log masuk untuk mengakses papan pemuka</p>", unsafe_allow_html=True)
+        
+        # Use st.form so users can press 'Enter' to log in
+        with st.form("login_form", clear_on_submit=False):
+            email = st.text_input("Emel Pengguna", placeholder="cth: staf@mara.gov.my")
+            password = st.text_input("Kata Laluan", type="password", placeholder="••••••••")
+            
+            submit_button = st.form_submit_button("Log Masuk", type="primary", use_container_width=True)
+            
+            if submit_button:
+                if email and password:
+                    # Talk directly to the Firebase Auth server
+                    url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_API_KEY}"
+                    payload = {"email": email, "password": password, "returnSecureToken": True}
+                    
+                    response = requests.post(url, json=payload)
+                    
+                    # 200 means the server confirmed the login is correct
+                    if response.status_code == 200:
+                        st.session_state['logged_in'] = True
+                        st.session_state['current_user'] = email  
+                        st.rerun()
+                    else:
+                        # Show the exact error from Firebase
+                        error_data = response.json()
+                        firebase_error = error_data.get("error", {}).get("message", "Unknown Error")
+                        st.error(f"Ralat Firebase: {firebase_error}")
+                else:
+                    st.warning("Sila masukkan emel dan kata laluan.")
+
+# 5. MAIN APP (ONLY VISIBLE IF LOGGED IN)
 else:
     # SIDEBAR NAVIGATION
     st.sidebar.image("mara_logo.png", width=150)
@@ -72,10 +96,8 @@ else:
     st.title(page)
 
     # --- SETUP GLOBAL SPREADSHEET CONNECTION ---
-    # We put this here so EVERY page can use 'conn' and 'sheet_url'
     conn = st.connection("gsheets", type=GSheetsConnection)
     sheet_url = "https://docs.google.com/spreadsheets/d/15_qeN_tYUkPaV480_F7ENjTYFJ6vKeGcIDNKb8XEcGM/edit"
-
 
     if page == "Ringkasan Data Korporat":
         # 1. Fetch user's name for the personalized greeting
@@ -97,7 +119,7 @@ else:
         kpi_data = df_kpi.set_index("Metrik")["Nilai"].to_dict()
         jumlah_pelajar = int(kpi_data.get('Jumlah Keseluruhan Pelajar', 0))
         
-        # Get Total Financing from Keusahawanan (automatically adds up the whole column!)
+        # Get Total Financing from Keusahawanan
         df_pembiayaan = conn.read(spreadsheet=sheet_url, worksheet="Pembiayaan_Perniagaan", ttl=0)
         jumlah_pembiayaan = df_pembiayaan['Jumlah Pembiayaan (RM Juta)'].sum()
         
@@ -110,7 +132,7 @@ else:
         with col2:
             st.metric(label="💰 Jumlah Pembiayaan Perniagaan", value=f"RM {jumlah_pembiayaan:.1f} Juta")
         with col3:
-            st.metric(label="🏢 Pusat Pentadbiran Aktif", value="115") # We can make this dynamic later!
+            st.metric(label="🏢 Pusat Pentadbiran Aktif", value="115") 
             
         st.divider()
         
@@ -222,7 +244,6 @@ else:
         # --- 3. INTERACTIVE CHART ---
         st.subheader("Perbandingan Enrolmen 2026 vs Fasiliti Akademik")
         
-        # CHANGED: usecols=[0, 1, 2, 3, 4] so it reads all 5 columns from the sheet
         df_institusi = conn.read(spreadsheet=sheet_url, worksheet="Pendidikan", usecols=[0, 1, 2, 3, 4], ttl=0)
         df_chart = df_institusi.set_index("Institusi")
         
