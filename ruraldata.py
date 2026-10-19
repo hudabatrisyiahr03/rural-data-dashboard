@@ -40,7 +40,7 @@ if not st.session_state['logged_in']:
         st.markdown("<h2 style='text-align: center; color: #262730;'>Portal Data Korporat</h2>", unsafe_allow_html=True)
         st.markdown("<p style='text-align: center; color: #666;'>Sila log masuk untuk mengakses papan pemuka</p>", unsafe_allow_html=True)
         
-        # Use st.form so users can press 'Enter' to log in
+        # --- THE ACTUAL LOGIN FORM ---
         with st.form("login_form", clear_on_submit=False):
             email = st.text_input("Emel Pengguna", placeholder="cth: staf@mara.gov.my")
             password = st.text_input("Kata Laluan", type="password", placeholder="••••••••")
@@ -55,18 +55,34 @@ if not st.session_state['logged_in']:
                     
                     response = requests.post(url, json=payload)
                     
-                    # 200 means the server confirmed the login is correct
                     if response.status_code == 200:
                         st.session_state['logged_in'] = True
                         st.session_state['current_user'] = email  
                         st.rerun()
                     else:
-                        # Show the exact error from Firebase
                         error_data = response.json()
                         firebase_error = error_data.get("error", {}).get("message", "Unknown Error")
                         st.error(f"Ralat Firebase: {firebase_error}")
                 else:
                     st.warning("Sila masukkan emel dan kata laluan.")
+
+        # --- LUPA KATA LALUAN ---
+        with st.expander("Lupa Kata Laluan?"):
+            reset_email = st.text_input("Masukkan emel anda:", key="reset_email")
+            
+            if st.button("Hantar Pautan Reset", use_container_width=True):
+                if reset_email:
+                    reset_url = f"https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key={FIREBASE_API_KEY}"
+                    payload = {"requestType": "PASSWORD_RESET", "email": reset_email}
+                    
+                    response = requests.post(reset_url, json=payload)
+                    
+                    if response.status_code == 200:
+                        st.success(f"✅ Pautan telah dihantar ke `{reset_email}`. Sila semak peti masuk anda.")
+                    else:
+                        st.error("Ralat: Emel tidak dijumpai atau tidak sah.")
+                else:
+                    st.warning("Sila masukkan emel terlebih dahulu.")
 
 # 5. MAIN APP (ONLY VISIBLE IF LOGGED IN)
 else:
@@ -375,8 +391,18 @@ else:
                 
             st.divider()
             
-            with st.expander("Tetapan Lanjutan"):
-                st.info("Di sini kita boleh tambah fungsi tukar kata laluan atau kemas kini gambar pada masa akan datang.")
-        else:
-            st.write(f"**Emel:** {current_email}")
-            st.warning("Maklumat profil tambahan tidak dijumpai dalam pangkalan data.")
+            with st.expander("⚙️ Tetapan Lanjutan (Tukar Kata Laluan)"):
+                st.info("Klik butang di bawah untuk menerima pautan tukar kata laluan melalui emel rasmi anda.")
+                
+                if st.button("Hantar Emel Tukar Kata Laluan", type="primary"):
+                    # Call Firebase's Password Reset API
+                    reset_url = f"https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key={FIREBASE_API_KEY}"
+                    payload = {"requestType": "PASSWORD_RESET", "email": current_email}
+                    
+                    response = requests.post(reset_url, json=payload)
+                    
+                    if response.status_code == 200:
+                        st.success(f"✅ Pautan pertukaran kata laluan telah dihantar ke `{current_email}`. Sila semak peti masuk (atau folder spam) anda.")
+                    else:
+                        error_msg = response.json().get("error", {}).get("message", "Ralat tidak diketahui")
+                        st.error(f"Gagal menghantar emel: {error_msg}")
