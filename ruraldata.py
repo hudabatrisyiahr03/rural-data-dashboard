@@ -464,11 +464,14 @@ else:
                             # 6. Save link to Google Sheets
                             conn = st.connection("gsheets", type=GSheetsConnection)
                             
-                            # Paksa kolum menjadi teks (string) untuk mengelakkan ralat Pandas
+                            # Paksa kolum menjadi teks (string)
                             df_profil['URL_Gambar'] = df_profil['URL_Gambar'].astype(str) 
-                            
                             df_profil.loc[df_profil['Emel'] == current_email, 'URL_Gambar'] = public_url
-                            conn.update(worksheet="Profil_Staf", data=df_profil)
+                            
+                            # Masukkan URL penuh Google Sheets "Dashboard Data MARA" anda
+                            sheet_url = "https://docs.google.com/spreadsheets/d/15_qeN_tYUkPaV480_F7ENjTYFJ6vKeGcIDNKb8XEcGM/edit?usp=sharing"
+                            
+                            conn.update(spreadsheet=sheet_url, worksheet="Profil_Staf", data=df_profil)
                             
                             st.cache_data.clear()
                             st.success("✅ Gambar profil berjaya dikemas kini! Sila muat semula (refresh) halaman.")
