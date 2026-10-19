@@ -126,12 +126,48 @@ else:
             st.info("Ruangan untuk graf dan jadual KPI.")
 
     elif page == "Sektor Khidmat Pengurusan":
-        with st.expander("Pusat - Pusat Pentadbiran MARA", expanded=True):
-            st.info("Ruangan untuk senarai dan data Pusat Pentadbiran.")
-        with st.expander("Kedudukan Pengisian Jawatan"):
-            st.info("Ruangan untuk statistik perjawatan.")
-        with st.expander("Program Pembangunan Kerjaya"):
-            st.info("Ruangan untuk data program kerjaya.")
+        st.subheader("Kedudukan Pengisian Jawatan MARA")
+        
+        # 1. Fetch Real Data
+        df_hr = conn.read(spreadsheet=sheet_url, worksheet="Khidmat_Pengurusan", ttl=0)
+        
+        # 2. Calculate Exact Metrics from the Official Report
+        jumlah_peruntukan = df_hr['Peruntukan Jawatan'].sum()
+        jumlah_pengisian = df_hr['Pengisian Semasa'].sum()
+        kekosongan = jumlah_peruntukan - jumlah_pengisian
+        kadar_pengisian = (jumlah_pengisian / jumlah_peruntukan) * 100
+        
+        # 3. Display Metric Cards
+        col1, col2, col3, col4 = st.columns(4)
+        col1.metric("📋 Peruntukan Jawatan", f"{jumlah_peruntukan:,}")
+        col2.metric("👥 Pengisian Semasa", f"{jumlah_pengisian:,}")
+        col3.metric("📉 Kekosongan", f"{kekosongan:,}")
+        col4.metric("📈 Kadar Pengisian", f"{kadar_pengisian:.1f}%")
+        
+        st.divider()
+        
+        # 4. Display Visual and Table in Columns
+        col_chart, col_table = st.columns([1, 1])
+        
+        with col_chart:
+            st.markdown("**Taburan Pengisian Mengikut Pusat**")
+            # Set index for the bar chart so 'Pusat' is on the X-axis
+            df_chart_hr = df_hr.set_index("Pusat")
+            # Display a grouped bar chart for side-by-side comparison
+            st.bar_chart(df_chart_hr[["Peruntukan Jawatan", "Pengisian Semasa"]], color=["#262730", "#E3000F"])
+            
+        with col_table:
+            st.markdown("**Data Terperinci (Setakat 31 Julai 2026)**")
+            st.dataframe(df_hr, hide_index=True, use_container_width=True)
+            
+            # Export Button
+            csv_hr = df_hr.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                label="📥 Muat Turun Data Perjawatan",
+                data=csv_hr,
+                file_name="Data_Perjawatan_MARA_Julai2026.csv",
+                mime="text/csv"
+            )
 
     elif page == "Sektor Keusahawanan":
         with st.expander("Ringkasan Penerima Kemudahan Keusahawanan, Pembiayaan dan Penyewa MARA", expanded=True):
