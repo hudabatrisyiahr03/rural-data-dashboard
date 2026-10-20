@@ -3,6 +3,7 @@ import pandas as pd
 import requests
 import plotly.express as px
 from streamlit_gsheets import GSheetsConnection
+import base64
 
 # 1. FIREBASE CONFIGURATION
 FIREBASE_API_KEY = st.secrets["FIREBASE_API_KEY"]
@@ -38,27 +39,19 @@ if not st.session_state['logged_in']:
         st.write("") 
         st.write("")
         
-        # 1. Use strict CSS to force Streamlit to center the image on mobile
+        # 1. Convert the local image to Base64 so HTML can read it directly
+        with open("mara_logo.png", "rb") as image_file:
+            encoded_logo = base64.b64encode(image_file.read()).decode()
+            
+        # 2. Use pure HTML to force dead-center alignment
         st.markdown(
-            """
-            <style>
-                [data-testid="stImage"] {
-                    margin-left: auto !important;
-                    margin-right: auto !important;
-                    display: flex !important;
-                    justify-content: center !important;
-                }
-                [data-testid="stImage"] > img {
-                    margin-left: auto !important;
-                    margin-right: auto !important;
-                }
-            </style>
+            f"""
+            <div style="display: flex; justify-content: center; margin-bottom: 10px;">
+                <img src="data:image/png;base64,{encoded_logo}" width="150">
+            </div>
             """, 
             unsafe_allow_html=True
         )
-        
-        # 2. Display the logo with a fixed width, no columns needed!
-        st.image("mara_logo.png", width=150)
         
         st.markdown("<h2 style='text-align: center; color: #262730;'>Portal Data Korporat</h2>", unsafe_allow_html=True)
         st.markdown("<p style='text-align: center; color: #666;'>Sila log masuk untuk mengakses papan pemuka</p>", unsafe_allow_html=True)
