@@ -36,7 +36,7 @@ if not st.session_state['logged_in']:
         st.write("")
         
         # Display the MARA logo centered above the login box
-        st.image("mara_logo.png", use_container_width=True)
+        st.image("mara_logo.png", width=150)
         
         st.markdown("<h2 style='text-align: center; color: #262730;'>Portal Data Korporat</h2>", unsafe_allow_html=True)
         st.markdown("<p style='text-align: center; color: #666;'>Sila log masuk untuk mengakses papan pemuka</p>", unsafe_allow_html=True)
@@ -110,7 +110,7 @@ else:
         st.rerun()
 
     # PAGE CONTENT ROUTING
-    st.title(page)
+    st.header(page)
 
     # --- SETUP GLOBAL SPREADSHEET CONNECTION & CACHING ---
     sheet_url = "https://docs.google.com/spreadsheets/d/15_qeN_tYUkPaV480_F7ENjTYFJ6vKeGcIDNKb8XEcGM/edit"
@@ -487,7 +487,7 @@ else:
                 else:
                     avatar_url = url_gambar
                     
-                st.image(avatar_url, use_container_width=True)
+                st.image(avatar_url, width=150)
                 
             with col2:
                 st.markdown(f"## {nama}")
