@@ -182,28 +182,40 @@ else:
         
         # --- 1. JADUAL SEKTOR KEUSAHAWANAN ---
         with st.expander("📊 Sektor Keusahawanan", expanded=True):
-            # Tarik data secara langsung dari tab 'Lampiran_Usahawan' di Google Sheets
             df_usahawan = load_data("Lampiran_Usahawan") 
-            st.dataframe(df_usahawan, hide_index=True, use_container_width=True)
+            
+            # Gunakan style.format untuk mencantikkan nombor
+            styled_usahawan = df_usahawan.style.format({
+                "Sasaran KPI": "{:,.0f}",
+                "Pencapaian": "{:,.0f}",
+                "Peruntukan (RM)": "RM {:,.0f}",
+                "Belanja (RM)": "RM {:,.0f}"
+            })
+            st.dataframe(styled_usahawan, hide_index=True, use_container_width=True)
 
         # --- 2. JADUAL SEKTOR PENDIDIKAN ---
         with st.expander("🎓 Sektor Pendidikan", expanded=True):
-            # Tarik data dari tab 'Lampiran_Pendidikan'
             df_pendidikan = load_data("Lampiran_Pendidikan")
-            st.dataframe(df_pendidikan, hide_index=True, use_container_width=True)
+            
+            styled_pendidikan = df_pendidikan.style.format({
+                "Pelajar Sedia Ada": "{:,.0f}",
+                "Intake Baharu": "{:,.0f}",
+                "Enrolment Semasa": "{:,.0f}"
+            })
+            st.dataframe(styled_pendidikan, hide_index=True, use_container_width=True)
 
         # --- 3. JADUAL SEKTOR PELABURAN ---
         with st.expander("💼 Sektor Pelaburan (Kawalan Kredit & Subsidiari)", expanded=True):
             
             st.markdown("**Bahagian Kawalan Kredit (BKK)**")
             df_kredit = load_data("Lampiran_Kredit")
-            st.dataframe(df_kredit, hide_index=True, use_container_width=True)
             
-            st.divider()
-            
-            st.markdown("**Bahagian Pembangunan dan Pelaburan Subsidiari (BPPS)**")
-            df_bpps = load_data("Lampiran_BPPS")
-            st.dataframe(df_bpps, hide_index=True, use_container_width=True)
+            styled_kredit = df_kredit.style.format({
+                "Bilangan Pembayar": "{:,.0f}",
+                "Jumlah Kutipan 2026 (RM)": "RM {:,.2f}", # .2f untuk memaparkan nilai sen
+                "Jumlah Kutipan 2025 (RM)": "RM {:,.2f}"
+            })
+            st.dataframe(styled_kredit, hide_index=True, use_container_width=True
 
     elif page == "Sektor Khidmat Pengurusan":
         st.subheader("Data Sumber Manusia (HR)")
