@@ -481,7 +481,7 @@ else:
                         
                         # 1. Supabase Credentials
                         SUPABASE_URL = "https://yafabimzeoriwrightzu.supabase.co"
-                        SUPABASE_KEY = "sb_publishable_P1GHTLmhIAMLaW4G5p8bEQ_Conbjfo4"
+                        SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
                         
                         # 2. Create a clean file name using the user's email
                         file_ext = uploaded_file.name.split(".")[-1]
