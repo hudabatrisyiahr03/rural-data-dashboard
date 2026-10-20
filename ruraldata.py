@@ -215,7 +215,7 @@ else:
                 "Jumlah Kutipan 2026 (RM)": "RM {:,.2f}", # .2f untuk memaparkan nilai sen
                 "Jumlah Kutipan 2025 (RM)": "RM {:,.2f}"
             })
-            st.dataframe(styled_kredit, hide_index=True, use_container_width=True
+            st.dataframe(styled_kredit, hide_index=True, use_container_width=True)
 
     elif page == "Sektor Khidmat Pengurusan":
         st.subheader("Data Sumber Manusia (HR)")
