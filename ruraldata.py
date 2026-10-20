@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import requests
+import plotly.express as px
 from streamlit_gsheets import GSheetsConnection
 
 # 1. FIREBASE CONFIGURATION
@@ -170,6 +171,47 @@ else:
     elif page == "Sektor Khidmat Pengurusan":
         st.subheader("Data Sumber Manusia (HR)")
         
+        # --- PLOTLY INTERACTIVE CHARTS START HERE ---
+        st.markdown("**Analitik Profil Staf Semasa**")
+        df_profil_hr = load_data("Profil_Staf") # Load the profile database
+        
+        chart_col1, chart_col2 = st.columns(2)
+        
+        with chart_col1:
+            df_jabatan = df_profil_hr['Jabatan'].value_counts().reset_index()
+            df_jabatan.columns = ['Jabatan', 'Bilangan Staf']
+            
+            fig_jabatan = px.pie(
+                df_jabatan, 
+                names='Jabatan', 
+                values='Bilangan Staf', 
+                hole=0.5, 
+                title="Taburan Staf Mengikut Jabatan",
+                color_discrete_sequence=px.colors.sequential.Teal
+            )
+            fig_jabatan.update_traces(textposition='inside', textinfo='percent+label')
+            fig_jabatan.update_layout(showlegend=False, margin=dict(t=40, b=0, l=0, r=0))
+            st.plotly_chart(fig_jabatan, use_container_width=True)
+            
+        with chart_col2:
+            df_jawatan = df_profil_hr['Jawatan'].value_counts().reset_index()
+            df_jawatan.columns = ['Jawatan', 'Bilangan Staf']
+            
+            fig_jawatan = px.pie(
+                df_jawatan, 
+                names='Jawatan', 
+                values='Bilangan Staf', 
+                hole=0.5,
+                title="Taburan Staf Mengikut Jawatan",
+                color_discrete_sequence=px.colors.sequential.Burgyl
+            )
+            fig_jawatan.update_traces(textposition='inside', textinfo='percent+label')
+            fig_jawatan.update_layout(showlegend=False, margin=dict(t=40, b=0, l=0, r=0))
+            st.plotly_chart(fig_jawatan, use_container_width=True)
+            
+        st.divider()
+        # --- PLOTLY INTERACTIVE CHARTS END HERE ---
+
         # Create tabs to separate MARA internal staff from Subsidiary staff
         tab_pusat, tab_syarikat = st.tabs(["🏢 Pusat Pentadbiran MARA", "💼 Anak Syarikat MARA"])
         
@@ -204,7 +246,7 @@ else:
         with tab_syarikat:
             st.markdown("**Pengisian Jawatan Anak Syarikat MARA**")
             
-            # Fetch Data from the new Pelaburan sheet you just made
+            # Fetch Data from the new Pelaburan sheet
             df_pelaburan = load_data("Pelaburan")
             
             col_a, col_b = st.columns(2)
