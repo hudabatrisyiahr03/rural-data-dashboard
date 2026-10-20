@@ -177,11 +177,33 @@ else:
             st.info("Papan pemuka ini memantau metrik utama merentas semua sektor MARA secara masa nyata (real-time) melalui pangkalan data awan (cloud database).")
 
     elif page == "Lampiran Pelaporan Data Korporat":
-        with st.expander("Ringkasan Eksekutif Data Korporat", expanded=True):
-            st.write("Khidmat Pengurusan, Usahawan, Pendidikan & Pelaburan")
-            st.info("Ruangan untuk Ringkasan Eksekutif.")
-        with st.expander("Petunjuk Prestasi Utama (KPI)"):
-            st.info("Ruangan untuk graf dan jadual KPI.")
+        st.markdown("## 📑 Lampiran Pelaporan Data Korporat")
+        st.write("Jadual ringkasan keseluruhan eksekutif bagi sektor utama MARA.")
+        
+        # --- 1. JADUAL SEKTOR KEUSAHAWANAN ---
+        with st.expander("📊 Sektor Keusahawanan", expanded=True):
+            # Tarik data secara langsung dari tab 'Lampiran_Usahawan' di Google Sheets
+            df_usahawan = load_data("Lampiran_Usahawan") 
+            st.dataframe(df_usahawan, hide_index=True, use_container_width=True)
+
+        # --- 2. JADUAL SEKTOR PENDIDIKAN ---
+        with st.expander("🎓 Sektor Pendidikan", expanded=True):
+            # Tarik data dari tab 'Lampiran_Pendidikan'
+            df_pendidikan = load_data("Lampiran_Pendidikan")
+            st.dataframe(df_pendidikan, hide_index=True, use_container_width=True)
+
+        # --- 3. JADUAL SEKTOR PELABURAN ---
+        with st.expander("💼 Sektor Pelaburan (Kawalan Kredit & Subsidiari)", expanded=True):
+            
+            st.markdown("**Bahagian Kawalan Kredit (BKK)**")
+            df_kredit = load_data("Lampiran_Kredit")
+            st.dataframe(df_kredit, hide_index=True, use_container_width=True)
+            
+            st.divider()
+            
+            st.markdown("**Bahagian Pembangunan dan Pelaburan Subsidiari (BPPS)**")
+            df_bpps = load_data("Lampiran_BPPS")
+            st.dataframe(df_bpps, hide_index=True, use_container_width=True)
 
     elif page == "Sektor Khidmat Pengurusan":
         st.subheader("Data Sumber Manusia (HR)")
