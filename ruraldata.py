@@ -225,53 +225,58 @@ else:
         st.divider()
         # --- PLOTLY INTERACTIVE CHARTS END HERE ---
 
-        # Create tabs to separate MARA internal staff from Subsidiary staff
-        tab_pusat, tab_syarikat = st.tabs(["🏢 Pusat Pentadbiran MARA", "💼 Anak Syarikat MARA"])
+        # Create tabs to separate MARA internal staff, Subsidiary staff, and Training
+        tab_pusat, tab_syarikat, tab_latihan = st.tabs([
+            "🏢 Pusat Pentadbiran MARA", 
+            "💼 Anak Syarikat MARA",
+            "🎓 Pembangunan Kerjaya"
+        ])
         
         with tab_pusat:
+            # (Keep your existing tab_pusat code here)
             st.markdown("**Kedudukan Pengisian Jawatan MARA**")
             
             df_hr = load_data("Khidmat_Pengurusan")
+            # ... rest of your existing code for tab_pusat
             
-            jumlah_peruntukan = df_hr['Peruntukan Jawatan'].sum()
-            jumlah_pengisian = df_hr['Pengisian Semasa'].sum()
-            kekosongan = jumlah_peruntukan - jumlah_pengisian
-            kadar_pengisian = (jumlah_pengisian / jumlah_peruntukan) * 100
-            
-            col1, col2, col3, col4 = st.columns(4)
-            col1.metric("📋 Peruntukan", f"{jumlah_peruntukan:,}")
-            col2.metric("👥 Pengisian", f"{jumlah_pengisian:,}")
-            col3.metric("📉 Kekosongan", f"{kekosongan:,}")
-            col4.metric("📈 Kadar", f"{kadar_pengisian:.1f}%")
-            
-            st.divider()
-            
-            col_chart, col_table = st.columns([1, 1])
-            with col_chart:
-                df_chart_hr = df_hr.set_index("Pusat")
-                st.bar_chart(df_chart_hr[["Peruntukan Jawatan", "Pengisian Semasa"]], color=["#262730", "#E3000F"])
-                
-            with col_table:
-                st.dataframe(df_hr, hide_index=True, use_container_width=True)
-                csv_hr = df_hr.to_csv(index=False).encode('utf-8')
-                st.download_button("📥 Muat Turun Data (Pusat)", data=csv_hr, file_name="Data_Perjawatan_MARA.csv", mime="text/csv")
-                
         with tab_syarikat:
+            # (Keep your existing tab_syarikat code here)
             st.markdown("**Pengisian Jawatan Anak Syarikat MARA**")
+            # ... rest of your existing code for tab_syarikat
             
-            # Fetch Data from the new Pelaburan sheet
-            df_pelaburan = load_data("Pelaburan")
+        with tab_latihan:
+            st.markdown("**Pemantauan Latihan & Pembangunan Modal Insan (2026)**")
             
-            col_a, col_b = st.columns(2)
-            col_a.metric("🏢 Jumlah Anak Syarikat (Direkodkan)", f"{len(df_pelaburan)}")
-            col_b.metric("👥 Keseluruhan Tenaga Kerja", f"{df_pelaburan['Jumlah'].sum():,}")
+            # 1. Generate Mock Data for Training Programs (until you link a real Google Sheet)
+            data_latihan = {
+                "Program Latihan": ["Kepimpinan Eksekutif", "Keselamatan Siber (STRIDE)", "Analitik Data (Python/Tableau)", "Pengurusan Kewangan", "Komunikasi Korporat"],
+                "Jumlah Peserta": [25, 150, 45, 80, 60],
+                "Bajet Digunakan (RM)": [50000, 15000, 25000, 10000, 12000],
+                "Status": ["Selesai", "Sedang Berjalan", "Selesai", "Akan Datang", "Sedang Berjalan"]
+            }
+            df_latihan = pd.DataFrame(data_latihan)
+            
+            # 2. Display KPI Metrics
+            col_l1, col_l2, col_l3 = st.columns(3)
+            col_l1.metric("📚 Jumlah Program", len(df_latihan))
+            col_l2.metric("👥 Keseluruhan Peserta", df_latihan['Jumlah Peserta'].sum())
+            col_l3.metric("💰 Jumlah Perbelanjaan", f"RM {df_latihan['Bajet Digunakan (RM)'].sum():,}")
             
             st.divider()
             
-            # Display Visual and Table
-            df_chart_pelaburan = df_pelaburan.set_index("Syarikat")
-            st.bar_chart(df_chart_pelaburan["Jumlah"], color="#1E88E5")
-            st.dataframe(df_pelaburan, hide_index=True, use_container_width=True)
+            # 3. Interactive Plotly Bar Chart for Training
+            fig_latihan = px.bar(
+                df_latihan, 
+                x="Program Latihan", 
+                y="Jumlah Peserta", 
+                color="Status",
+                title="Penyertaan Staf Mengikut Program Latihan",
+                color_discrete_map={"Selesai": "#2E7D32", "Sedang Berjalan": "#1976D2", "Akan Datang": "#FFA000"}
+            )
+            st.plotly_chart(fig_latihan, use_container_width=True)
+            
+            # 4. Display the Data Table
+            st.dataframe(df_latihan, hide_index=True, use_container_width=True)
             
     elif page == "Sektor Keusahawanan":
         with st.expander("Ringkasan Penerima Kemudahan Keusahawanan, Pembiayaan dan Penyewa MARA", expanded=True):
