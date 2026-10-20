@@ -55,8 +55,6 @@ if not st.session_state['logged_in']:
         st.image("mara_logo.png", width=150)
         
         st.markdown("<h2 style='text-align: center; color: #262730;'>Portal Data Korporat</h2>", unsafe_allow_html=True)
-        
-        st.markdown("<h2 style='text-align: center; color: #262730;'>Portal Data Korporat</h2>", unsafe_allow_html=True)
         st.markdown("<p style='text-align: center; color: #666;'>Sila log masuk untuk mengakses papan pemuka</p>", unsafe_allow_html=True)
         
         # --- THE ACTUAL LOGIN FORM ---
