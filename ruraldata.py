@@ -35,10 +35,26 @@ if not st.session_state['logged_in']:
         st.write("") # Adds vertical breathing room
         st.write("")
         
-        # Create a mini 3-column layout just to trap the logo in the dead center
-        logo_left, logo_center, logo_right = st.columns([1, 1, 1])
-        with logo_center:
-            st.image("mara_logo.png", width=150)
+        st.write("") 
+        st.write("")
+        
+        # 1. Use CSS to force Streamlit to center the image component
+        st.markdown(
+            """
+            <style>
+                [data-testid="stImage"] {
+                    display: flex;
+                    justify-content: center;
+                }
+            </style>
+            """, 
+            unsafe_allow_html=True
+        )
+        
+        # 2. Display the logo with a fixed width, no columns needed!
+        st.image("mara_logo.png", width=150)
+        
+        st.markdown("<h2 style='text-align: center; color: #262730;'>Portal Data Korporat</h2>", unsafe_allow_html=True)
         
         st.markdown("<h2 style='text-align: center; color: #262730;'>Portal Data Korporat</h2>", unsafe_allow_html=True)
         st.markdown("<p style='text-align: center; color: #666;'>Sila log masuk untuk mengakses papan pemuka</p>", unsafe_allow_html=True)
