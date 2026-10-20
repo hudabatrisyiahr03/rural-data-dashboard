@@ -175,10 +175,22 @@ else:
         st.markdown("**Analitik Profil Staf Semasa**")
         df_profil_hr = load_data("Profil_Staf") # Load the profile database
         
+        # 1. Create a dynamic multiselect dropdown for Departments
+        senarai_jabatan = df_profil_hr['Jabatan'].dropna().unique().tolist()
+        pilihan_jabatan = st.multiselect(
+            "Tapis Data Mengikut Jabatan:", 
+            options=senarai_jabatan, 
+            default=senarai_jabatan
+        )
+        
+        # 2. Filter the dataframe based on the user's selection
+        df_profil_filtered = df_profil_hr[df_profil_hr['Jabatan'].isin(pilihan_jabatan)]
+        
         chart_col1, chart_col2 = st.columns(2)
         
         with chart_col1:
-            df_jabatan = df_profil_hr['Jabatan'].value_counts().reset_index()
+            # 3. Use the filtered dataframe (df_profil_filtered) instead of the main one
+            df_jabatan = df_profil_filtered['Jabatan'].value_counts().reset_index()
             df_jabatan.columns = ['Jabatan', 'Bilangan Staf']
             
             fig_jabatan = px.pie(
@@ -194,7 +206,8 @@ else:
             st.plotly_chart(fig_jabatan, use_container_width=True)
             
         with chart_col2:
-            df_jawatan = df_profil_hr['Jawatan'].value_counts().reset_index()
+            # 3. Use the filtered dataframe here too
+            df_jawatan = df_profil_filtered['Jawatan'].value_counts().reset_index()
             df_jawatan.columns = ['Jawatan', 'Bilangan Staf']
             
             fig_jawatan = px.pie(
