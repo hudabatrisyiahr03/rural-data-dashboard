@@ -35,8 +35,10 @@ if not st.session_state['logged_in']:
         st.write("") # Adds vertical breathing room
         st.write("")
         
-        # Display the MARA logo centered above the login box
-        st.image("mara_logo.png", width=150)
+        # Create a mini 3-column layout just to trap the logo in the dead center
+        logo_left, logo_center, logo_right = st.columns([1, 1, 1])
+        with logo_center:
+            st.image("mara_logo.png", use_container_width=True)
         
         st.markdown("<h2 style='text-align: center; color: #262730;'>Portal Data Korporat</h2>", unsafe_allow_html=True)
         st.markdown("<p style='text-align: center; color: #666;'>Sila log masuk untuk mengakses papan pemuka</p>", unsafe_allow_html=True)
@@ -487,7 +489,11 @@ else:
                 else:
                     avatar_url = url_gambar
                     
-                st.image(avatar_url, width=150)
+                # Use HTML to force a circular crop and fixed size
+                st.markdown(
+                    f'<img src="{avatar_url}" style="border-radius: 50%; width: 150px; height: 150px; object-fit: cover; margin-bottom: 20px;">', 
+                    unsafe_allow_html=True
+                )
                 
             with col2:
                 st.markdown(f"## {nama}")
