@@ -38,13 +38,19 @@ if not st.session_state['logged_in']:
         st.write("") 
         st.write("")
         
-        # 1. Use CSS to force Streamlit to center the image component
+        # 1. Use strict CSS to force Streamlit to center the image on mobile
         st.markdown(
             """
             <style>
                 [data-testid="stImage"] {
-                    display: flex;
-                    justify-content: center;
+                    margin-left: auto !important;
+                    margin-right: auto !important;
+                    display: flex !important;
+                    justify-content: center !important;
+                }
+                [data-testid="stImage"] > img {
+                    margin-left: auto !important;
+                    margin-right: auto !important;
                 }
             </style>
             """, 
