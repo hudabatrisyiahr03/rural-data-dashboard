@@ -183,40 +183,47 @@ else:
         # --- 1. JADUAL SEKTOR KEUSAHAWANAN ---
         with st.expander("📊 Sektor Keusahawanan", expanded=True):
             df_usahawan = load_data("Lampiran_Usahawan") 
-            
-            # Gunakan style.format untuk mencantikkan nombor
-            styled_usahawan = df_usahawan.style.format({
+            # Apply formatting to add commas and RM prefixes
+            formatted_usahawan = df_usahawan.style.format({
                 "Sasaran KPI": "{:,.0f}",
                 "Pencapaian": "{:,.0f}",
                 "Peruntukan (RM)": "RM {:,.0f}",
                 "Belanja (RM)": "RM {:,.0f}"
-            })
-            st.dataframe(styled_usahawan, hide_index=True, use_container_width=True)
+            }, na_rep="-")
+            st.dataframe(formatted_usahawan, hide_index=True, use_container_width=True)
 
         # --- 2. JADUAL SEKTOR PENDIDIKAN ---
         with st.expander("🎓 Sektor Pendidikan", expanded=True):
             df_pendidikan = load_data("Lampiran_Pendidikan")
-            
-            styled_pendidikan = df_pendidikan.style.format({
+            formatted_pendidikan = df_pendidikan.style.format({
                 "Pelajar Sedia Ada": "{:,.0f}",
                 "Intake Baharu": "{:,.0f}",
                 "Enrolment Semasa": "{:,.0f}"
-            })
-            st.dataframe(styled_pendidikan, hide_index=True, use_container_width=True)
+            }, na_rep="-")
+            st.dataframe(formatted_pendidikan, hide_index=True, use_container_width=True)
 
         # --- 3. JADUAL SEKTOR PELABURAN ---
         with st.expander("💼 Sektor Pelaburan (Kawalan Kredit & Subsidiari)", expanded=True):
             
             st.markdown("**Bahagian Kawalan Kredit (BKK)**")
             df_kredit = load_data("Lampiran_Kredit")
-            
-            styled_kredit = df_kredit.style.format({
+            formatted_kredit = df_kredit.style.format({
                 "Bilangan Pembayar": "{:,.0f}",
-                "Jumlah Kutipan 2026 (RM)": "RM {:,.2f}", # .2f untuk memaparkan nilai sen
-                "Jumlah Kutipan 2025 (RM)": "RM {:,.2f}"
-            })
-            st.dataframe(styled_kredit, hide_index=True, use_container_width=True)
-
+                "Jumlah Kutipan 2026 (RM)": "RM {:,.2f}",
+                "Jumlah Kutipan 2025 (RM)": "RM {:,.0f}"
+            }, na_rep="-")
+            st.dataframe(formatted_kredit, hide_index=True, use_container_width=True)
+            
+            st.divider()
+            
+            st.markdown("**Bahagian Pembangunan dan Pelaburan Subsidiari (BPPS)**")
+            df_bpps = load_data("Lampiran_BPPS")
+            formatted_bpps = df_bpps.style.format({
+                "Bilangan": "{:,.0f}",
+                "Modal Berbayar (RM)": "RM {:,.0f}",
+                "Kos Pelaburan (RM)": "RM {:,.0f}"
+            }, na_rep="-")
+            st.dataframe(formatted_bpps, hide_index=True, use_container_width=True)
     elif page == "Sektor Khidmat Pengurusan":
         st.subheader("Data Sumber Manusia (HR)")
         
